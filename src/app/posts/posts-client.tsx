@@ -1,6 +1,9 @@
 "use client";
 
-// biome-ignore assist/source/organizeImports: Ignore
+import { useMemo, useState } from "react";
+import Link from "next/link";
+import { ClockArrowDown, ClockArrowUp } from "lucide-react";
+
 import {
   Accordion,
   AccordionContent,
@@ -17,9 +20,6 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { getBadges } from "@/categories";
-import { ClockArrowDown, ClockArrowUp } from "lucide-react";
-import Link from "next/link";
-import { useMemo, useState } from "react";
 import { formatDate } from "@/lib/utils";
 
 interface Post {
@@ -30,7 +30,7 @@ interface Post {
   created_at: string;
 }
 
-let cooldown: number = 200;
+const cooldown: number = 200;
 
 export default function Posts({ posts }: { posts: Post[] }) {
   const [filter, setFilter] = useState("all");
@@ -102,6 +102,13 @@ export default function Posts({ posts }: { posts: Post[] }) {
       </Card>
 
       <div className="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 items-start justify-items-center sm:justify-items-stretch">
+        {filtered.length === 0 && (
+          <Card className="w-full col-span-full py-12 flex flex-col items-center justify-center text-zinc-500">
+            <p className="text-lg font-medium">
+              Nenhum post encontrado para os filtros selecionados.
+            </p>
+          </Card>
+        )}
         {filtered.map((p: Post, index: number) => (
           <Card
             key={p.id}

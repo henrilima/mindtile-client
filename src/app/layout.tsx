@@ -2,21 +2,25 @@ import type { Metadata } from "next";
 import Navbar from "@/components/navbar";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
+import { cookies } from "next/headers";
 
 export const metadata: Metadata = {
   title: "MindTile",
   description: "Desvende novos horizontes do conhecimento.",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const cookieStore = await cookies();
+  const isAdmin = cookieStore.get("admin")?.value === "true";
+
   return (
     <html lang="pt" className="dark">
       <body className="antialiased relative min-h-screen bg-background">
-        <Navbar></Navbar>
+        <Navbar isAdmin={isAdmin}></Navbar>
         {children}
         <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
           <div className="absolute left-10 top-10 h-72 w-72 rounded-full bg-indigo-900/10 blur-3xl" />

@@ -7,7 +7,7 @@ import { AlertCircle, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { _baseUrl } from "@/types";
+import { createPost } from "@/actions";
 
 export default function CreatePostPage() {
   const router = useRouter();
@@ -34,15 +34,9 @@ export default function CreatePostPage() {
     setErrorMessage("");
 
     try {
-      const res = await fetch(`${_baseUrl}/post/`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      });
+      const success = await createPost(formData);
 
-      if (res.ok) {
+      if (success) {
         setStatus("success");
         setTimeout(() => {
           router.push("/admin");

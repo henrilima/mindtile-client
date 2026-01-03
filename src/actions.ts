@@ -1,65 +1,52 @@
 "use server";
 import { _baseUrl, type Block, type Post } from "./types";
 
-export async function managePostLikes(id: string, action: string): Promise<Boolean> {
+export async function createPost(data: {
+  title: string;
+  content: string;
+  theme: string;
+}) {
   try {
-    const res = await fetch(`${_baseUrl}/post/${id}/like`, {
-      method: "PATCH",
+    const res = await fetch(`${_baseUrl}/post/`, {
+      method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ action: action }),
+      body: JSON.stringify(data),
     });
 
-    const response = await res.json();
-    console.log(response.message);
+    if (!res.ok) {
+      throw new Error("Erro ao criar post");
+    }
+
     return true;
   } catch (error) {
-    console.error(error);
+    console.error("Erro ao criar post:", error);
     return false;
   }
 }
 
-export async function getPosts(): Promise<Post[]> {
-  try {
-    const res = await fetch(`${_baseUrl}/post`, {
-      method: "GET",
-      cache: "no-store",
-    });
-
-    if (!res.ok) {
-      throw new Error("Erro ao buscar dados");
-    }
-
-    const data = await res.json();
-    return getDataWithTags(data);
-  } catch (error) {
-    console.error(error);
-    return [];
-  }
-}
-
-export async function getPost(id: string) {
+export async function deletePost(id: string) {
   try {
     const res = await fetch(`${_baseUrl}/post/${id}`, {
-      method: "GET",
-      cache: "no-store",
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
     });
 
     if (!res.ok) {
-      throw new Error("Erro ao buscar dados");
+      throw new Error("Erro ao deletar post.");
     }
 
-    const data = await res.json();
-    return getDataWithTags(data);
-  } catch (error) {
-    console.error(error);
-    return [];
+    return true;
+  } catch (err) {
+    console.error(err);
+    return false;
   }
 }
 
 function getDataWithTags(data: Post | Post[]) {
-  // biome-ignore lint/suspicious/noExplicitAny: Ignore
   const processPost = (post: any) => {
     let tags: string[] = [];
 
@@ -87,22 +74,62 @@ function getDataWithTags(data: Post | Post[]) {
   return processPost(data);
 }
 
-export async function deletePost(id: string) {
+export async function getPost(id: string) {
   try {
     const res = await fetch(`${_baseUrl}/post/${id}`, {
-      method: "DELETE",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      method: "GET",
+      cache: "no-store",
     });
 
     if (!res.ok) {
-      throw new Error("Erro ao deletar post.");
+      throw new Error("Erro ao buscar dados");
     }
 
+    const data = await res.json();
+    return getDataWithTags(data);
+  } catch (error) {
+    console.error(error);
+    return [];
+  }
+}
+
+export async function getPosts(): Promise<Post[]> {
+  try {
+    const res = await fetch(`${_baseUrl}/post`, {
+      method: "GET",
+      cache: "no-store",
+    });
+
+    if (!res.ok) {
+      throw new Error("Erro ao buscar dados");
+    }
+
+    const data = await res.json();
+    return getDataWithTags(data);
+  } catch (error) {
+    console.error(error);
+    return [];
+  }
+}
+
+export async function managePostLikes(
+  id: string,
+  action: string,
+): Promise<boolean> {
+  try {
+    const res = await fetch(`${_baseUrl}/post/${id}/like`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ action: action }),
+    });
+
+    const response = await res.json();
+    console.log(response.message);
     return true;
-  } catch (err) {
-    console.error(err);
+  } catch (error) {
+    console.error(error);
     return false;
   }
 }

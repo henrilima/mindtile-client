@@ -21,30 +21,35 @@ export function LikeButton({ postId, initialLikes }: LikeButtonProps) {
     }
   }, [postId]);
 
-  async function manageLikes() {
-    const storage = localStorage.getItem(`storage:${postId}:likes`);
+  const [isProcessing, setIsProcessing] = useState(false);
 
-    if (!storage) {
-      const success = await managePostLikes(postId, "add");
-      if (success) {
-        localStorage.setItem(`storage:${postId}:likes`, "true");
-        setLikes((prev) => prev + 1);
-        setHasLiked(true);
+  async function manageLikes() {
+    if (isProcessing) return;
+    setIsProcessing(true);
+
+    try {
+      const storage = localStorage.getItem(`storage:${postId}:likes`);
+      const isLiked = storage === "true";
+
+      if (isLiked) {
+        const success = await managePostLikes(postId, "remove");
+        if (success) {
+          localStorage.setItem(`storage:${postId}:likes`, "false");
+          setLikes((prev) => prev - 1);
+          setHasLiked(false);
+        }
+      } else {
+        const success = await managePostLikes(postId, "add");
+        if (success) {
+          localStorage.setItem(`storage:${postId}:likes`, "true");
+          setLikes((prev) => prev + 1);
+          setHasLiked(true);
+        }
       }
-    } else if (storage === "true") {
-      const success = await managePostLikes(postId, "remove");
-      if (success) {
-        localStorage.setItem(`storage:${postId}:likes`, "false");
-        setLikes((prev) => prev - 1);
-        setHasLiked(false);
-      }
-    } else {
-      const success = await managePostLikes(postId, "add");
-      if (success) {
-        localStorage.setItem(`storage:${postId}:likes`, "true");
-        setLikes((prev) => prev + 1);
-        setHasLiked(true);
-      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsProcessing(false);
     }
   }
 

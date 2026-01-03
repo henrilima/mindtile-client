@@ -31,7 +31,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { deletePost } from "@/manager";
+import { deletePost } from "@/actions";
 import { toast } from "sonner";
 
 interface Post {
@@ -47,10 +47,7 @@ interface DialogComponentProps {
   triggerText: string;
 }
 
-export function DialogComponent({
-  posts,
-  triggerText,
-}: DialogComponentProps) {
+export function DialogComponent({ posts, triggerText }: DialogComponentProps) {
   const router = useRouter();
 
   const [selectionOpen, setSelectionOpen] = useState(false);
@@ -97,11 +94,7 @@ export function DialogComponent({
     <>
       <Dialog open={selectionOpen} onOpenChange={setSelectionOpen}>
         <DialogTrigger asChild>
-          <Button
-            variant="outline"
-          >
-            {triggerText}
-          </Button>
+          <Button variant="outline">{triggerText}</Button>
         </DialogTrigger>
         <DialogContent>
           <DialogHeader>

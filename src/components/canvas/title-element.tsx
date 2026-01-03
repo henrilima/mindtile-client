@@ -1,7 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import type { CanvasElement } from "@/manager";
+import type { CanvasElement } from "@/types";
 import { Check } from "lucide-react";
 import {
   Popover,

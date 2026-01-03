@@ -1,13 +1,13 @@
-const _baseurl = "https://mindtile-api.vercel.app";
+import { _baseUrl } from "@/types";
 
 export async function uploadImage(file: File) {
-  const signatureResponse = await fetch(`${_baseurl}/api/storage/signature`);
+  const signatureResponse = await fetch(`${_baseUrl}/storage/signature`);
 
   if (!signatureResponse.ok) {
     throw new Error("Falha ao obter assinatura do backend");
   }
 
-  const { signature, timestamp, cloud_name, api_key, folder } =
+  const { signature, timestamp, cloud_name, api_key, folder, transformation } =
     await signatureResponse.json();
 
   const formData = new FormData();
@@ -16,6 +16,7 @@ export async function uploadImage(file: File) {
   formData.append("timestamp", timestamp.toString());
   formData.append("signature", signature);
   formData.append("folder", folder);
+  formData.append('transformation', transformation); 
 
   const cloudinaryResponse = await fetch(
     `https://api.cloudinary.com/v1_1/${cloud_name}/image/upload`,

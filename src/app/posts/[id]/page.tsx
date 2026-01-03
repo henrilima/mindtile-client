@@ -3,9 +3,12 @@ import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader } from "@/components/ui/card";
 import { formatDate } from "@/lib/utils";
-import { getPost, type Post } from "@/manager";
+import type { Post } from "@/types";
+import { getPost } from "@/actions";
 import { getBadges } from "@/categories";
 import { renderElement, elementsList } from "@/utils";
+
+import { LikeButton } from "./like-button";
 
 export default async function Page({
   params,
@@ -19,16 +22,16 @@ export default async function Page({
     <div className="w-full min-h-screen flex flex-col items-start justify-start gap-6 max-w-4xl mx-auto py-12 px-4 sm:px-6 lg:px-4 md:py-20">
       <Card className="w-full">
         <CardHeader>
-            <Button
-              asChild
-              variant="outline"
-              size="icon"
-              className="mb-1 shrink-0 rounded-full"
-            >
-              <Link href="/posts">
-                <ArrowLeft className="size-6" />
-              </Link>
-            </Button>
+          <Button
+            asChild
+            variant="outline"
+            size="icon"
+            className="mb-1 shrink-0 rounded-full"
+          >
+            <Link href="/posts">
+              <ArrowLeft className="size-6" />
+            </Link>
+          </Button>
           <div className="flex items-start gap-4">
             <div className="flex flex-col gap-y-6">
               <h1 className="w-full text-3xl font-extrabold tracking-tight wrap-break-word sm:text-4xl md:text-5xl">
@@ -43,6 +46,9 @@ export default async function Page({
                 <span className="font-bold">Atualizado em:</span>{" "}
                 {formatDate(post.created_at)}
               </p>
+              <div>
+                <LikeButton initialLikes={post.likes} postId={String(post.id)} />
+              </div>
             </div>
           </div>
         </CardHeader>
@@ -67,7 +73,9 @@ export default async function Page({
               </div>
             ))
         ) : (
-          <p className={elementsList.text.style}>{post.content}</p>
+          <p className={elementsList.text.style}>
+            Este post ainda não possui nenhum componente.
+          </p>
         )}
       </div>
     </div>

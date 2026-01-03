@@ -1,6 +1,6 @@
 import { Separator } from "./ui/separator";
 import CanvasHeader from "./canvas/canvas-header";
-import type { CanvasElement, Post } from "@/manager";
+import type { CanvasElement, Post } from "@/types";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 
 import { useDroppable } from "@dnd-kit/core";

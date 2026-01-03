@@ -1,5 +1,6 @@
 import Builder from "@/components/builder";
-import { getPost, type Post } from "@/manager";
+import { getPost } from "@/actions";
+import type { Post } from "@/types";
 
 export default async function Page({
   params,

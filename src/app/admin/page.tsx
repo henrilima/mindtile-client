@@ -8,17 +8,14 @@ import {
   ItemDescription,
   ItemTitle,
 } from "@/components/ui/item";
-import getPosts from "@/manager";
+import { getPosts } from "@/actions";
 import { DialogComponent } from "./admin-client";
 
 async function action(triggerText: string) {
   const posts = await getPosts();
 
   return (
-    <DialogComponent
-      posts={posts}
-      triggerText={triggerText}
-    ></DialogComponent>
+    <DialogComponent posts={posts} triggerText={triggerText}></DialogComponent>
   );
 }
 

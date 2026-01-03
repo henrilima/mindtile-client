@@ -1,7 +1,7 @@
 "use client";
 
 import { Code as CodeIcon } from "lucide-react";
-import type { CanvasElement } from "@/manager";
+import type { CanvasElement } from "@/types";
 import {
   Select,
   SelectContent,

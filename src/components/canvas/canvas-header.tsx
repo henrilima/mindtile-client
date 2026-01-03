@@ -1,7 +1,7 @@
 import { Card, CardHeader } from "../ui/card";
 import { formatDate } from "@/lib/utils";
 import { getBadges } from "@/categories";
-import type { Post } from "@/manager";
+import type { Post } from "@/types";
 
 export default function CanvasHeader({ post }: { post: Post }) {
   return (

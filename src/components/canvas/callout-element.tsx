@@ -1,7 +1,7 @@
 "use client";
 
 import { Lightbulb } from "lucide-react";
-import type { CanvasElement } from "@/manager";
+import type { CanvasElement } from "@/types";
 
 export function CalloutElement({
   element,

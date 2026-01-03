@@ -1,7 +1,7 @@
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { GripVertical } from "lucide-react";
-import type { CanvasElement } from "@/manager";
+import type { CanvasElement } from "@/types";
 import { renderElement } from "@/utils";
 
 export function SortableItem({

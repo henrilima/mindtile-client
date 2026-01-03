@@ -30,6 +30,8 @@ interface Post {
   created_at: string;
 }
 
+let cooldown: number = 200;
+
 export default function Posts({ posts }: { posts: Post[] }) {
   const [filter, setFilter] = useState("all");
   const [search, setSearch] = useState("");
@@ -100,8 +102,15 @@ export default function Posts({ posts }: { posts: Post[] }) {
       </Card>
 
       <div className="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 items-start justify-items-center sm:justify-items-stretch">
-        {filtered.map((p: Post) => (
-          <Card key={p.id} className="w-full min-h-[250px] overflow-hidden">
+        {filtered.map((p: Post, index: number) => (
+          <Card
+            key={p.id}
+            className="w-full min-h-[250px] overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500 fill-mode-both"
+            style={{
+              animationDelay: `${index * cooldown}ms`,
+              animationFillMode: "both",
+            }}
+          >
             <CardHeader className="flex flex-col gap-2 items-start">
               <CardTitle className="text-xl font-bold line-clamp-2 overflow-hidden">
                 {p.title}

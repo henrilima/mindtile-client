@@ -7,6 +7,7 @@ import { AlertCircle, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { _baseUrl } from "@/types";
 
 export default function CreatePostPage() {
   const router = useRouter();
@@ -17,7 +18,6 @@ export default function CreatePostPage() {
     title: "",
     content: "",
     theme: "",
-    tags: "",
   });
 
   const handleChange = (
@@ -34,7 +34,7 @@ export default function CreatePostPage() {
     setErrorMessage("");
 
     try {
-      const res = await fetch("https://mindtile-api.vercel.app/api/post/", {
+      const res = await fetch(`${_baseUrl}/post/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -133,20 +133,6 @@ export default function CreatePostPage() {
             value={formData.theme}
             onChange={handleChange}
             required
-            className="bg-zinc-800 text-white border-zinc-700 focus:border-white"
-          />
-        </div>
-
-        <div className="flex flex-col gap-2">
-          <label htmlFor="tags" className="text-sm font-medium text-zinc-200">
-            Tags (Opcional)
-          </label>
-          <Input
-            id="tags"
-            name="tags"
-            placeholder="Separe por vírgulas..."
-            value={formData.tags}
-            onChange={handleChange}
             className="bg-zinc-800 text-white border-zinc-700 focus:border-white"
           />
         </div>

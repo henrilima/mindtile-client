@@ -2,8 +2,8 @@
 import { useState } from "react";
 import { toast } from "sonner";
 
-import type { CanvasElement, ElementType, Post } from "@/manager";
-import { saveBlocks } from "@/manager";
+import type { CanvasElement, ElementType, Post } from "@/types";
+import { saveBlocks } from "@/actions";
 import Canvas from "./canvas";
 import {
   DndContext,
@@ -156,6 +156,7 @@ export default function Builder({ post }: { post: Post }) {
           elements={elementsList}
           onSave={handleSave}
           isLoading={isSaving}
+          post={post}
         />
         <Canvas
           post={post}

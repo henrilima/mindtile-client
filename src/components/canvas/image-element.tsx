@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import Image from "next/image";
-import type { CanvasElement } from "@/manager";
+import type { CanvasElement } from "@/types";
 import { uploadImage } from "@/services/upload";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
@@ -15,7 +15,13 @@ import {
   Loader2,
   Trash2,
 } from "lucide-react";
-import { Dialog, DialogContent, DialogTrigger } from "../ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogTrigger,
+  DialogTitle,
+  DialogDescription,
+} from "../ui/dialog";
 
 export function ImageElement({
   element,
@@ -178,9 +184,25 @@ export function ImageElement({
 
           <div className="space-y-2">
             <span className="text-xs font-medium text-zinc-400 uppercase tracking-wider">
-              Tamanho
+              Legenda
             </span>
-            <div className="flex gap-2">
+            <Input
+              value={element.props?.caption || ""}
+              onChange={(e) =>
+                onUpdate?.(element.id, {
+                  props: { ...element.props, caption: e.target.value },
+                })
+              }
+              placeholder="Digite uma legenda para a imagem..."
+              className="bg-zinc-950 border-zinc-800 focus:ring-indigo-500/20"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <span className="text-xs font-medium text-zinc-400 uppercase tracking-wider">
+              Tamanho e Altura
+            </span>
+            <div className="flex gap-2 mb-2">
               <Button
                 variant="ghost"
                 size="sm"
@@ -196,7 +218,7 @@ export function ImageElement({
                 }
               >
                 <Monitor className="w-4 h-4 mr-2" />
-                Cheia
+                Largura Total
               </Button>
               <Button
                 variant="ghost"
@@ -215,6 +237,63 @@ export function ImageElement({
                 <Smartphone className="w-4 h-4 mr-2" />
                 Metade
               </Button>
+            </div>
+
+            <div className="space-y-2">
+              <span className="text-xs font-medium text-zinc-400 uppercase tracking-wider">
+                Alinhamento
+              </span>
+              <div className="flex gap-1 p-1 bg-zinc-800 rounded-lg">
+                {["start", "center", "end"].map((align) => (
+                  <button
+                    key={align}
+                    type="button"
+                    onClick={() =>
+                      onUpdate?.(element.id, {
+                        props: { ...element.props, align },
+                      })
+                    }
+                    className={`flex-1 py-1.5 text-xs font-medium rounded-md transition-all capitalize ${
+                      (element.props?.align || "center") === align
+                        ? "bg-zinc-600 text-zinc-100 shadow-sm"
+                        : "text-zinc-400 hover:text-zinc-200"
+                    }`}
+                  >
+                    {align === "start"
+                      ? "Esquerda"
+                      : align === "center"
+                        ? "Centro"
+                        : "Direita"}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="space-y-1">
+              <div className="flex justify-between">
+                <span className="text-[10px] text-zinc-500 uppercase">
+                  Altura Máxima
+                </span>
+                <span className="text-[10px] text-zinc-500">
+                  {element.props?.maxHeight || 600}px
+                </span>
+              </div>
+              <input
+                type="range"
+                min="200"
+                max="1000"
+                step="50"
+                value={element.props?.maxHeight || 600}
+                onChange={(e) =>
+                  onUpdate?.(element.id, {
+                    props: {
+                      ...element.props,
+                      maxHeight: Number(e.target.value),
+                    },
+                  })
+                }
+                className="w-full h-2 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-indigo-500"
+              />
             </div>
           </div>
         </div>
@@ -242,10 +321,18 @@ export function ImageElement({
     );
   }
 
+  const alignment = element.props?.align || "center";
+  const justifyClass =
+    alignment === "start"
+      ? "justify-start"
+      : alignment === "end"
+        ? "justify-end"
+        : "justify-center";
+
   return (
     <div
-      className={`relative group ${
-        width === "half" ? "w-1/2" : "w-full"
+      className={`relative group flex flex-col ${
+        width === "half" ? "w-full md:w-1/2" : "w-full"
       } transition-all duration-200`}
     >
       {hasError ? (
@@ -257,45 +344,66 @@ export function ImageElement({
           Link quebrado
         </Button>
       ) : (
-        <div className="relative">
-          <Image
-            src={url}
-            alt="Imagem do post"
-            width={0}
-            height={0}
-            sizes="100vw"
-            className="w-full h-auto rounded-md object-cover hover:ring-2 hover:ring-indigo-500 transition-all cursor-pointer"
-            unoptimized
-            onError={() => setHasError(true)}
-            onClick={() => onUpdate && setIsEditing(true)}
-          />
+        <div className={`relative w-full flex ${justifyClass}`}>
+          <div className="relative inline-block">
+            <Image
+              src={url}
+              alt={element.props?.caption || "Imagem do post"}
+              width={0}
+              height={0}
+              sizes="100vw"
+              style={{ maxHeight: `${element.props?.maxHeight || 600}px` }}
+              className="w-auto max-w-full h-auto rounded-md object-contain hover:ring-2 hover:ring-indigo-500 transition-all cursor-pointer"
+              unoptimized
+              onError={() => setHasError(true)}
+              onClick={() => onUpdate && setIsEditing(true)}
+            />
 
-          <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-            <Dialog>
-              <DialogTrigger asChild>
-                <Button
-                  size="icon"
-                  variant="secondary"
-                  className="rounded-full shadow-lg h-8 w-8 bg-white/90 hover:bg-white text-zinc-900"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <Maximize2 className="w-4 h-4" />
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="max-w-screen max-h-screen p-4 border-none bg-black/95">
-                <div className="relative w-full h-[85vh]">
-                  <Image
-                    src={url}
-                    alt="Fullscreen view"
-                    fill
-                    className="object-contain"
-                    unoptimized
-                  />
-                </div>
-              </DialogContent>
-            </Dialog>
+            <div className="absolute top-2 right-2 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity z-10">
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button
+                    size="icon"
+                    variant="secondary"
+                    className="rounded-full shadow-lg h-8 w-8 bg-white/90 hover:bg-white text-zinc-900"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <Maximize2 className="w-4 h-4" />
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-screen max-h-screen p-4 border-none bg-black/95">
+                  <DialogTitle className="sr-only">
+                    Visualização da imagem
+                  </DialogTitle>
+                  <DialogDescription className="sr-only">
+                    Imagem ampliada em tela cheia
+                  </DialogDescription>
+                  <div className="relative w-full h-[85vh]">
+                    <Image
+                      src={url}
+                      alt="Fullscreen view"
+                      fill
+                      className="object-contain"
+                      unoptimized
+                    />
+                  </div>
+                  {element.props?.caption && (
+                    <p className="absolute bottom-8 left-0 right-0 text-center text-zinc-300 bg-black/50 p-2">
+                      {element.props.caption}
+                    </p>
+                  )}
+                </DialogContent>
+              </Dialog>
+            </div>
           </div>
         </div>
+      )}
+      {element.props?.caption && (
+        <p
+          className={`mt-2 text-sm text-zinc-500 italic w-full flex ${justifyClass}`}
+        >
+          {element.props.caption}
+        </p>
       )}
     </div>
   );

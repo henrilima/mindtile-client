@@ -10,7 +10,7 @@ import {
   Highlighter,
   Italic,
 } from "lucide-react";
-import type { CanvasElement } from "@/manager";
+import type { CanvasElement } from "@/types";
 import ReactMarkdown from "react-markdown";
 import remarkBreaks from "remark-breaks";
 import rehypeRaw from "rehype-raw";

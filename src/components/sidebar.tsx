@@ -1,4 +1,5 @@
-import type { ElementCollection } from "@/manager";
+import type { ElementCollection, Post } from "@/types";
+import { PostSettingsModal } from "./post-settings-modal";
 import { Button } from "./ui/button";
 import {
   Card,
@@ -15,10 +16,12 @@ export default function Sidebar({
   elements,
   onSave,
   isLoading,
+  post,
 }: {
   elements: ElementCollection;
   onSave: () => void;
   isLoading?: boolean;
+  post: Post;
 }) {
   return (
     <Card className="sticky top-8 w-[320] p-8 rounded-2xl bg-zinc-950">
@@ -33,7 +36,7 @@ export default function Sidebar({
           <DraggableItem key={key} id={key}>
             <Card className="p-2">
               <CardContent className="flex items-center justify-start gap-2">
-                <value.icon className="text-orange-400" />
+                <value.icon className="text-pink-400" />
                 <p className="font-bold">{value.label}</p>
               </CardContent>
             </Card>
@@ -41,12 +44,10 @@ export default function Sidebar({
         ))}
       </CardContent>
       <CardFooter className="gap-2">
-        <Button variant="secondary" className="cursor-pointer">
-          Editar post
-        </Button>
+        <PostSettingsModal post={post} />
         <Button
           variant="secondary"
-          className="bg-green-800 cursor-pointer hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="flex-1 bg-green-800 cursor-pointer hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
           onClick={onSave}
           disabled={isLoading}
         >
@@ -100,7 +101,7 @@ Sidebar.Preview = function Preview({
   return (
     <Card className="p-2">
       <CardContent className="flex items-center justify-start gap-2">
-        <data.icon className="text-orange-400" />
+        <data.icon className="text-pink-400" />
         <p className="font-bold">{data.label}</p>
       </CardContent>
     </Card>

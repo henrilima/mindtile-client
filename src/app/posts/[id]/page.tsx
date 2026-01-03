@@ -11,7 +11,6 @@ import { renderElement, elementsList } from "@/utils";
 import { LikeButton } from "./like-button";
 import { ScrollProgress } from "@/components/ui/scroll-progress";
 import type { Metadata } from "next";
-import Image from "next/image";
 import BrainIcon from "@/images/Brain.png";
 
 export async function generateMetadata({
@@ -83,20 +82,6 @@ export default async function Page({
                 <ArrowLeft className="size-6" />
               </Link>
             </Button>
-
-            {post.props?.cover_image && (
-              <div className="relative w-full h-[200px] md:h-[300px] rounded-xl overflow-hidden mb-2">
-                <Image
-                  src={post.props.cover_image}
-                  alt={post.title}
-                  fill
-                  className="object-cover"
-                  priority
-                  unoptimized
-                />
-              </div>
-            )}
-
             <div className="flex items-start gap-4">
               <div className="flex flex-col gap-y-6 w-full">
                 <h1 className="w-full text-3xl font-extrabold tracking-tight wrap-break-word sm:text-4xl md:text-5xl">

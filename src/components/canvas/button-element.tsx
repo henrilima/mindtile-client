@@ -193,7 +193,7 @@ export function ButtonElement({
         </div>
         <div className="space-y-2">
           <span className="text-xs text-zinc-500 font-medium">Cor</span>
-          <div className="flex gap-2 flex-wrap">
+          <div className="flex gap-2 flex-wrap max-w-[280px]">
             {ELEMENT_COLORS.map((color) => (
               <button
                 key={color.value}

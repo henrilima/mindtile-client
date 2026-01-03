@@ -241,7 +241,7 @@ export function PostSettingsModal({
             {/* Scroll Progress Color Selection */}
             <div className="space-y-2 pt-2 border-t border-zinc-800 mt-4">
               <Label>Cor da Barra de Progresso</Label>
-              <div className="flex gap-2 flex-wrap">
+              <div className="flex gap-2 flex-wrap max-w-[280px]">
                 {ELEMENT_COLORS.map((color) => (
                   <button
                     key={color.value}

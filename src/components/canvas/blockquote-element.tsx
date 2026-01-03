@@ -1,7 +1,7 @@
 "use client";
 
 import type { CanvasElement } from "@/types";
-import { Button } from "@/components/ui/button";
+
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Quote } from "lucide-react";
@@ -51,7 +51,7 @@ export function BlockquoteElement({
           </div>
         </div>
 
-        <div className="flex gap-2 flex-wrap mb-4 px-1">
+        <div className="flex gap-2 flex-wrap mb-4 px-1 max-w-[280px]">
           {ELEMENT_COLORS.map((color) => (
             <button
               key={color.value}

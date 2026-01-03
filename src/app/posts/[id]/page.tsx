@@ -43,8 +43,7 @@ export default async function Page({
                 </div>
               )}
               <p className="text-sm text-indigo-400/70">
-                <span className="font-bold">Atualizado em:</span>{" "}
-                {formatDate(post.created_at)}
+                <span className="font-bold">Atualizado em: </span>{formatDate(post.created_at)}
               </p>
               <div>
                 <LikeButton initialLikes={post.likes} postId={String(post.id)} />

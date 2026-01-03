@@ -12,5 +12,6 @@ export function formatDate(date: string) {
     month: "long",
     hour: "numeric",
     minute: "numeric",
+    timeZone: "America/Sao_Paulo",
   });
 }

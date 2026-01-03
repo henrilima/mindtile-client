@@ -21,12 +21,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -224,23 +219,26 @@ export function TextElement({
               if (href.startsWith("tooltip:")) {
                 const tooltipText = decodeURIComponent(href.slice(8));
                 return (
-                  <TooltipProvider>
-                    <Tooltip delayDuration={100}>
-                      <TooltipTrigger asChild>
-                        <span
-                          className={cn(
-                            "underline decoration-dotted decoration-zinc-500 underline-offset-4 cursor-help inline-block",
-                            props.className,
-                          )}
-                        >
-                          {children}
-                        </span>
-                      </TooltipTrigger>
-                      <TooltipContent side="top">
-                        <p>{tooltipText}</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <span
+                        className={cn(
+                          "underline decoration-dotted decoration-zinc-500 underline-offset-4 cursor-help inline-block",
+                          props.className,
+                        )}
+                      >
+                        {children}
+                      </span>
+                    </PopoverTrigger>
+                    <PopoverContent
+                      side="top"
+                      className="w-auto max-w-[320px] p-2 bg-zinc-950 border-zinc-800 text-sm text-zinc-300"
+                    >
+                      <p className="whitespace-normal break-words">
+                        {tooltipText}
+                      </p>
+                    </PopoverContent>
+                  </Popover>
                 );
               }
 

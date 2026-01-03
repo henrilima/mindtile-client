@@ -22,7 +22,7 @@ export default function Canvas({
   const { setNodeRef } = useDroppable({ id: "canvas" });
 
   return (
-    <Card className="w-[900] bg-transparent px-4 py-8 rounded-2xl border-4">
+    <Card className="w-[900px] bg-transparent px-4 py-8 rounded-2xl border-4">
       <CardHeader>
         <CardTitle className="text-zinc-300/70">Pré-visualização:</CardTitle>
         <p className="text-xs text-zinc-300/40">

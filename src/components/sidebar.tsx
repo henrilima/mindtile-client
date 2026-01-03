@@ -24,7 +24,7 @@ export default function Sidebar({
   post: Post;
 }) {
   return (
-    <Card className="sticky top-8 w-[320] p-8 rounded-2xl bg-zinc-950">
+    <Card className="sticky top-8 w-[320px] p-8 rounded-2xl bg-zinc-950">
       <CardHeader>
         <CardTitle className="text-zinc-300/60">Componentes</CardTitle>
         <p className="text-xs text-zinc-300/40">Arraste e solte para inserir</p>

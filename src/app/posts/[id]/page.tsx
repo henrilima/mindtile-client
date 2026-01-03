@@ -11,6 +11,7 @@ import { renderElement, elementsList } from "@/utils";
 import { LikeButton } from "./like-button";
 import { ScrollProgress } from "@/components/ui/scroll-progress";
 import type { Metadata } from "next";
+import Image from "next/image";
 import BrainIcon from "@/images/Brain.png";
 
 export async function generateMetadata({
@@ -28,11 +29,15 @@ export async function generateMetadata({
     };
   }
 
-  // Find first image block to use as OG image, otherwise fallback
+  // Use cover image if available, else first image block, else fallback
+  const coverImage = post.props?.cover_image;
   const imageBlock = post.blocks?.find((block) => block.type === "image");
-  const ogImage = imageBlock?.props?.url
-    ? [imageBlock.props.url]
-    : [BrainIcon.src];
+
+  const ogImage = coverImage
+    ? [coverImage]
+    : imageBlock?.props?.url
+      ? [imageBlock.props.url]
+      : [BrainIcon.src];
 
   return {
     title: post.title,
@@ -67,35 +72,51 @@ export default async function Page({
       <ScrollProgress color={post.props?.progress_color} />
       <Card className="w-full">
         <CardHeader>
-          <Button
-            asChild
-            variant="outline"
-            size="icon"
-            className="mb-1 shrink-0 rounded-full"
-          >
-            <Link href="/posts">
-              <ArrowLeft className="size-6" />
-            </Link>
-          </Button>
-          <div className="flex items-start gap-4">
-            <div className="flex flex-col gap-y-6">
-              <h1 className="w-full text-3xl font-extrabold tracking-tight wrap-break-word sm:text-4xl md:text-5xl">
-                {post.title}
-              </h1>
-              {post.tags && post.tags.length > 0 && (
-                <div className="flex gap-2 flex-wrap">
-                  {getBadges(post.tags)}
-                </div>
-              )}
-              <p className="text-sm text-indigo-400/70">
-                <span className="font-bold">Atualizado em: </span>
-                {formatDate(post.created_at)}
-              </p>
-              <div>
-                <LikeButton
-                  initialLikes={post.likes}
-                  postId={String(post.id)}
+          <div className="flex flex-col w-full gap-4">
+            <Button
+              asChild
+              variant="outline"
+              size="icon"
+              className="mb-1 shrink-0 rounded-full w-10 h-10 self-start"
+            >
+              <Link href="/posts">
+                <ArrowLeft className="size-6" />
+              </Link>
+            </Button>
+
+            {post.props?.cover_image && (
+              <div className="relative w-full h-[200px] md:h-[300px] rounded-xl overflow-hidden mb-2">
+                <Image
+                  src={post.props.cover_image}
+                  alt={post.title}
+                  fill
+                  className="object-cover"
+                  priority
+                  unoptimized
                 />
+              </div>
+            )}
+
+            <div className="flex items-start gap-4">
+              <div className="flex flex-col gap-y-6 w-full">
+                <h1 className="w-full text-3xl font-extrabold tracking-tight wrap-break-word sm:text-4xl md:text-5xl">
+                  {post.title}
+                </h1>
+                {post.tags && post.tags.length > 0 && (
+                  <div className="flex gap-2 flex-wrap">
+                    {getBadges(post.tags)}
+                  </div>
+                )}
+                <p className="text-sm text-indigo-400/70">
+                  <span className="font-bold">Atualizado em: </span>
+                  {formatDate(post.created_at)}
+                </p>
+                <div>
+                  <LikeButton
+                    initialLikes={post.likes}
+                    postId={String(post.id)}
+                  />
+                </div>
               </div>
             </div>
           </div>

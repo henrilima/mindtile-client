@@ -1,6 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
+import Image from "next/image";
+import { uploadImage } from "@/services/upload";
 import {
   Dialog,
   DialogContent,
@@ -8,7 +10,14 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Check, Loader2, X } from "lucide-react";
+import {
+  Check,
+  Loader2,
+  X,
+  Upload,
+  Image as ImageIcon,
+  Trash2,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -36,6 +45,26 @@ export function PostSettingsModal({
   const [progressColor, setProgressColor] = useState(
     post.props?.progress_color || "#6366f1",
   );
+  const [coverImage, setCoverImage] = useState(post.props?.cover_image || "");
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setIsUploading(true);
+      try {
+        const uploadedUrl = await uploadImage(file);
+        setCoverImage(uploadedUrl);
+        toast.success("Imagem enviada com sucesso!");
+      } catch (error) {
+        console.error("Erro ao fazer upload:", error);
+        toast.error("Erro ao enviar imagem.");
+      } finally {
+        setIsUploading(false);
+      }
+    }
+  };
 
   const handleToggleTag = (tagKey: string) => {
     if (tags.includes(tagKey)) {
@@ -56,7 +85,7 @@ export function PostSettingsModal({
         title,
         content,
         tags,
-        props: { progress_color: progressColor },
+        props: { progress_color: progressColor, cover_image: coverImage },
       });
 
       if (success) {
@@ -66,7 +95,11 @@ export function PostSettingsModal({
           title,
           content,
           tags,
-          props: { ...post.props, progress_color: progressColor },
+          props: {
+            ...post.props,
+            progress_color: progressColor,
+            cover_image: coverImage,
+          },
         });
         setOpen(false);
       } else {
@@ -113,7 +146,7 @@ export function PostSettingsModal({
       </DialogTrigger>
       {/* onOpenAutoFocus={(e) => e.preventDefault()} prevents auto-focusing the first input */}
       <DialogContent
-        className="sm:max-w-[500px] bg-zinc-950 border-zinc-800 text-zinc-100"
+        className="sm:max-w-[500px] bg-zinc-950 border-zinc-800 text-zinc-100 max-h-[90vh] overflow-y-auto"
         onOpenAutoFocus={(e) => e.preventDefault()}
       >
         <DialogHeader>
@@ -138,6 +171,77 @@ export function PostSettingsModal({
               className="bg-zinc-900 border-zinc-700 focus:ring-indigo-500/20"
             />
           </div>
+          <div className="space-y-2">
+            <Label>Capa do Post</Label>
+            <div className="space-y-3 p-3 border border-zinc-800 rounded-lg bg-zinc-900/50">
+              {coverImage ? (
+                <div className="relative w-full h-32 rounded-md overflow-hidden border border-zinc-700 group">
+                  <Image
+                    src={coverImage}
+                    alt="Capa do post"
+                    fill
+                    className="object-cover"
+                    unoptimized
+                  />
+                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => setCoverImage("")}
+                      className="h-8"
+                    >
+                      <Trash2 className="w-4 h-4 mr-2" />
+                      Remover
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  className="w-full h-24 border-2 border-dashed border-zinc-700 rounded-md flex flex-col items-center justify-center gap-2 text-zinc-500 hover:border-zinc-500 hover:bg-zinc-800/50 transition-colors cursor-pointer"
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  <ImageIcon className="w-6 h-6" />
+                  <span className="text-xs">
+                    Clique para fazer upload da capa
+                  </span>
+                </button>
+              )}
+
+              <div className="flex gap-2">
+                <Input
+                  value={coverImage}
+                  onChange={(e) => setCoverImage(e.target.value)}
+                  placeholder="Ou cole a URL da imagem aqui..."
+                  className="bg-zinc-950 border-zinc-800 h-9 text-xs"
+                />
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  className="hidden"
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                  disabled={isUploading}
+                />
+                <Button
+                  type="button"
+                  variant="secondary"
+                  size="icon"
+                  className="h-9 w-9 shrink-0"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={isUploading}
+                >
+                  {isUploading ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <Upload className="w-4 h-4" />
+                  )}
+                </Button>
+              </div>
+            </div>
+          </div>
+
           <div className="space-y-2">
             <Label>Tags</Label>
 

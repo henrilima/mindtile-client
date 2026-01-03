@@ -21,6 +21,7 @@ import Sidebar from "./sidebar";
 import { Loader2 } from "lucide-react";
 
 export default function Builder({ post }: { post: Post }) {
+  const dndContextId = "mindtile-builder";
   const [canvasElements, setCanvasElements] = useState<CanvasElement[]>(
     post.blocks
       ? post.blocks
@@ -137,6 +138,7 @@ export default function Builder({ post }: { post: Post }) {
 
   return (
     <DndContext
+      id={dndContextId}
       sensors={sensors}
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
@@ -146,7 +148,7 @@ export default function Builder({ post }: { post: Post }) {
           body {
             cursor: grabbing !important;
           }
-          body * {
+           body * {
             cursor: grabbing !important;
           }
         `}</style>

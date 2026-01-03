@@ -6,73 +6,41 @@ import {
   AlignLeft,
   AlignRight,
   Bold,
-  Check,
-  Highlighter,
   Italic,
+  Link as LinkIcon,
+  Info,
+  Check,
 } from "lucide-react";
 import type { CanvasElement } from "@/types";
 import ReactMarkdown from "react-markdown";
 import remarkBreaks from "remark-breaks";
-import rehypeRaw from "rehype-raw";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { useEffect, useRef } from "react";
 import { cn } from "@/lib/utils";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import Editor from "react-simple-code-editor";
+import { useState, useRef } from "react";
 
-const HIGHLIGHT_COLORS = [
-  {
-    name: "Indigo",
-    value: "indigo",
-    classes: "bg-indigo-500/20 text-indigo-300",
-    preview: "bg-indigo-500",
-  },
-  {
-    name: "Red",
-    value: "red",
-    classes: "bg-red-500/20 text-red-300",
-    preview: "bg-red-500",
-  },
-  {
-    name: "Orange",
-    value: "orange",
-    classes: "bg-orange-500/20 text-orange-300",
-    preview: "bg-orange-500",
-  },
-  {
-    name: "Yellow",
-    value: "yellow",
-    classes: "bg-yellow-500/20 text-yellow-300",
-    preview: "bg-yellow-500",
-  },
-  {
-    name: "Green",
-    value: "green",
-    classes: "bg-green-500/20 text-green-300",
-    preview: "bg-green-500",
-  },
-  {
-    name: "Blue",
-    value: "blue",
-    classes: "bg-blue-500/20 text-blue-300",
-    preview: "bg-blue-500",
-  },
-  {
-    name: "Purple",
-    value: "purple",
-    classes: "bg-purple-500/20 text-purple-300",
-    preview: "bg-purple-500",
-  },
-  {
-    name: "Pink",
-    value: "pink",
-    classes: "bg-pink-500/20 text-pink-300",
-    preview: "bg-pink-500",
-  },
-];
+import { ELEMENT_COLORS } from "@/colors";
+
+const HIGHLIGHT_COLORS = ELEMENT_COLORS.map((color) => ({
+  name: color.name,
+  value: color.name.toLowerCase(),
+  classes: color.text,
+  preview: color.tailwind,
+}));
 
 export function TextElement({
   element,
@@ -84,68 +52,153 @@ export function TextElement({
   mode?: "edit" | "view";
 }) {
   const align = element.props?.align || "left";
-  const highlightColor = element.props?.highlightColor || "indigo";
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  useEffect(() => {
-    if (mode === "edit" && textareaRef.current) {
-      // We use the content length as a data attribute for debugging/styling purposes
-      // This also ensures the effect technically depends on element.content, satisfying the linter
-      textareaRef.current.dataset.contentLength = String(
-        element.content?.length || 0,
-      );
+  const [activePopover, setActivePopover] = useState<
+    "link" | "tooltip" | "color" | null
+  >(null);
+  const [inputValue, setInputValue] = useState("");
+  const selectionRef = useRef<{ start: number; end: number } | null>(null);
 
-      textareaRef.current.style.height = "auto";
-      textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
+  const saveSelection = () => {
+    const textarea = document.querySelector(
+      `textarea[id="editor-${element.id}"]`,
+    ) as HTMLTextAreaElement;
+    if (textarea) {
+      selectionRef.current = {
+        start: textarea.selectionStart,
+        end: textarea.selectionEnd,
+      };
     }
-  }, [element.content, mode]);
+  };
 
-  const insertFormat = (format: "bold" | "italic" | "highlight") => {
-    const textarea = textareaRef.current;
-    if (!textarea || !onUpdate) return;
+  const handleInsert = (type: "link" | "tooltip", value: string) => {
+    if (!onUpdate || !selectionRef.current) return;
+
+    const { start, end } = selectionRef.current;
+    const text = element.content || "";
+    const before = text.substring(0, start);
+    const selectedText = text.substring(start, end);
+    const after = text.substring(end);
+    let newText = "";
+
+    if (type === "link") {
+      newText = `${before}[${selectedText || "link"}](${value})${after}`;
+    } else if (type === "tooltip") {
+      newText = `${before}[${selectedText || "texto"}]?(${value})${after}`;
+    }
+
+    onUpdate(element.id, { content: newText });
+    setActivePopover(null);
+    setInputValue("");
+
+    setTimeout(() => {
+      const textarea = document.querySelector(
+        `textarea[id="editor-${element.id}"]`,
+      ) as HTMLTextAreaElement;
+      if (textarea) textarea.focus();
+    }, 0);
+  };
+
+  const insertFormat = (
+    format: "bold" | "italic" | "color",
+    value?: string,
+  ) => {
+    if (!onUpdate) return;
+
+    const textarea = document.querySelector(
+      `textarea[id="editor-${element.id}"]`,
+    ) as HTMLTextAreaElement;
+    if (!textarea) return;
 
     const start = textarea.selectionStart;
     const end = textarea.selectionEnd;
     const text = element.content || "";
     const before = text.substring(0, start);
-    const selection = text.substring(start, end);
+    const selectedText = text.substring(start, end);
     const after = text.substring(end);
 
     let newText = "";
+
     if (format === "bold") {
-      newText = `${before}**${selection}**${after}`;
+      newText = `${before}**${selectedText}**${after}`;
     } else if (format === "italic") {
-      newText = `${before}_${selection}_${after}`;
-    } else if (format === "highlight") {
-      newText = `${before}>${selection}<${after}`;
+      newText = `${before}_${selectedText}_${after}`;
+    } else if (format === "color" && value) {
+      newText = `${before}[${selectedText}]{${value}}${after}`;
     }
 
-    onUpdate(element.id, { content: newText });
+    if (newText) {
+      onUpdate(element.id, { content: newText });
+      setTimeout(() => {
+        textarea.focus();
+      }, 0);
+    }
+  };
 
-    // Restore focus and selection based on added chars
-    setTimeout(() => {
-      textarea.focus();
-      const offset = format === "bold" ? 2 : 1;
-      textarea.setSelectionRange(start + offset, end + offset);
-    }, 0);
+  const highlightContent = (code: string) => {
+    // Basic HTML escaping
+    let highlighted = code
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+
+    // Bold: **text**
+    highlighted = highlighted.replace(
+      /(\*\*|__)(.*?)\1/g,
+      '<span class="text-zinc-500 font-normal">$1</span><strong class="text-gray-100">$2</strong><span class="text-zinc-500 font-normal">$1</span>',
+    );
+
+    // Italic: _text_
+    highlighted = highlighted.replace(
+      /(\*|_)(.*?)\1/g,
+      '<span class="text-zinc-500 font-normal">$1</span><em class="text-gray-100">$2</em><span class="text-zinc-500 font-normal">$1</span>',
+    );
+
+    // Tooltips: [text]?(tip)
+    highlighted = highlighted.replace(
+      /\[(.*?)\]\?\((.*?)\)/g,
+      '<span class="text-zinc-500">[</span><span class="underline decoration-dotted decoration-zinc-500 underline-offset-4 text-gray-100" title="$2">$1</span><span class="text-zinc-500">]?($2)</span>',
+    );
+
+    // Links: [text](url)
+    highlighted = highlighted.replace(
+      /\[(.*?)\]\((.*?)\)/g,
+      '<span class="text-zinc-500">[</span><span class="text-blue-400 underline">$1</span><span class="text-zinc-500">]($2)</span>',
+    );
+
+    // Colors: [text]{color}
+    HIGHLIGHT_COLORS.forEach((color) => {
+      // Escape for regex
+      const regex = new RegExp(`\\[(.*?)\\]\\{${color.value}\\}`, "g");
+      highlighted = highlighted.replace(
+        regex,
+        `<span class="text-zinc-500">[</span><span class="${color.classes}">$1</span><span class="text-zinc-500">]{${color.value}}</span>`,
+      );
+    });
+
+    return highlighted;
   };
 
   const processContent = (content: string) => {
     if (!content) return "";
     let processed = content;
 
-    // Find selected color definition
-    const colorDef =
-      HIGHLIGHT_COLORS.find((c) => c.value === highlightColor) ||
-      HIGHLIGHT_COLORS[0];
+    processed = processed.replace(/\\\\/g, "  \n");
 
-    // Handle double backslash as line break
-    processed = processed.replace(/\\\\/g, "<br/>");
-    // Handle >text< as highlight with dynamic classes
+    // Transform Custom Syntax to Markdown Links
+
+    // Tooltips: [text]?(tip) -> [text](tooltip:tipEncoded)
     processed = processed.replace(
-      />([^<\n\r]+)</g,
-      `<span class="${colorDef.classes} font-semibold px-1 rounded">$1</span>`,
+      /\[(.*?)\]\?\((.*?)\)/g,
+      (match, text, tip) => `[${text}](tooltip:${encodeURIComponent(tip)})`,
     );
+
+    // Colors: [text]{color} -> [text](color:blue)
+    HIGHLIGHT_COLORS.forEach((color) => {
+      const regex = new RegExp(`\\[(.*?)\\]\\{${color.value}\\}`, "g");
+      processed = processed.replace(regex, `[$1](color:${color.value})`);
+    });
+
     return processed;
   };
 
@@ -153,7 +206,7 @@ export function TextElement({
     return (
       <div
         className={cn(
-          "w-full prose prose-invert max-w-none text-gray-300 leading-relaxed",
+          "w-full prose prose-invert max-w-none text-gray-300 leading-relaxed break-words",
           align === "center" && "text-center",
           align === "right" && "text-right",
           align === "justify" && "text-justify",
@@ -161,14 +214,68 @@ export function TextElement({
       >
         <ReactMarkdown
           remarkPlugins={[remarkBreaks]}
-          rehypePlugins={[rehypeRaw]}
+          urlTransform={(url) => url}
           components={{
             p: ({ children }) => <span className="block mb-2">{children}</span>,
-            span: ({ className, children, ...props }) => (
-              <span className={className} {...props}>
-                {children}
-              </span>
-            ),
+            a: ({ href, children, ...props }) => {
+              if (!href) return <a {...props}>{children}</a>;
+
+              // Handle Tooltips
+              if (href.startsWith("tooltip:")) {
+                const tooltipText = decodeURIComponent(href.slice(8));
+                return (
+                  <TooltipProvider>
+                    <Tooltip delayDuration={100}>
+                      <TooltipTrigger asChild>
+                        <span
+                          className={cn(
+                            "underline decoration-dotted decoration-zinc-500 underline-offset-4 cursor-help inline-block",
+                            props.className,
+                          )}
+                        >
+                          {children}
+                        </span>
+                      </TooltipTrigger>
+                      <TooltipContent side="top">
+                        <p>{tooltipText}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                );
+              }
+
+              // Handle Colors
+              if (href.startsWith("color:")) {
+                const colorValue = href.slice(6);
+                const colorDef =
+                  HIGHLIGHT_COLORS.find((c) => c.value === colorValue) ||
+                  HIGHLIGHT_COLORS[0];
+                return (
+                  <span
+                    className={cn(
+                      "font-medium",
+                      colorDef.classes,
+                      props.className,
+                    )}
+                  >
+                    {children}
+                  </span>
+                );
+              }
+
+              // Normal Links
+              return (
+                <a
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-400 hover:underline cursor-pointer"
+                  {...props}
+                >
+                  {children}
+                </a>
+              );
+            },
           }}
         >
           {processContent(element.content || "")}
@@ -177,9 +284,10 @@ export function TextElement({
     );
   }
 
+  // Edit Mode
   return (
     <div className="w-full group relative">
-      <div className="absolute -top-12 left-0 z-10 hidden group-focus-within:flex items-center gap-1 bg-zinc-900 border border-zinc-800 p-1 rounded-lg shadow-xl animate-in fade-in slide-in-from-bottom-2 duration-200">
+      <div className="absolute -top-12 left-0 z-50 flex items-center gap-1 bg-zinc-900 border border-zinc-800 p-1 rounded-lg shadow-xl opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity duration-200">
         <ToggleGroup
           type="single"
           value={align}
@@ -209,6 +317,7 @@ export function TextElement({
             type="button"
             onClick={() => insertFormat("bold")}
             className="p-2 hover:bg-zinc-800 rounded-md text-zinc-400 hover:text-zinc-200 transition-colors"
+            title="Negrito (**texto**)"
           >
             <Bold className="w-4 h-4" />
           </button>
@@ -216,79 +325,163 @@ export function TextElement({
             type="button"
             onClick={() => insertFormat("italic")}
             className="p-2 hover:bg-zinc-800 rounded-md text-zinc-400 hover:text-zinc-200 transition-colors"
+            title="Itálico (_texto_)"
           >
             <Italic className="w-4 h-4" />
           </button>
-          <div className="flex items-center">
-            <button
-              type="button"
-              onClick={() => insertFormat("highlight")}
-              className="p-2 hover:bg-zinc-800 rounded-l-md text-zinc-400 hover:text-zinc-200 transition-colors border-r border-zinc-800"
-            >
-              <Highlighter className="w-4 h-4" />
-            </button>
-            <Popover>
-              <PopoverTrigger asChild>
-                <button
-                  type="button"
-                  className="p-2 hover:bg-zinc-800 rounded-r-md transition-colors"
-                >
-                  <div
-                    className={cn(
-                      "w-3 h-3 rounded-full",
-                      HIGHLIGHT_COLORS.find((c) => c.value === highlightColor)
-                        ?.preview || "bg-indigo-500",
-                    )}
-                  />
-                </button>
-              </PopoverTrigger>
-              <PopoverContent
-                className="w-auto p-3 bg-zinc-950 border-zinc-800"
-                align="center"
+
+          <Popover
+            open={activePopover === "link"}
+            onOpenChange={(open) => {
+              if (open) saveSelection();
+              setActivePopover(open ? "link" : null);
+            }}
+          >
+            <PopoverTrigger asChild>
+              <button
+                type="button"
+                className="p-2 hover:bg-zinc-800 rounded-md text-zinc-400 hover:text-zinc-200 transition-colors"
+                title="Link [texto](url)"
               >
-                <div className="flex gap-2 flex-wrap max-w-[170px]">
-                  {HIGHLIGHT_COLORS.map((c) => (
-                    <button
-                      key={c.name}
-                      type="button"
-                      onClick={() =>
-                        onUpdate?.(element.id, {
-                          props: { ...element.props, highlightColor: c.value },
-                        })
-                      }
-                      className={cn(
-                        "w-6 h-6 rounded-full border border-zinc-700 hover:scale-110 transition-transform flex items-center justify-center",
-                        c.preview,
-                      )}
-                      title={c.name}
-                    >
-                      {highlightColor === c.value && (
-                        <Check className="w-3 h-3 text-white font-bold" />
-                      )}
-                    </button>
-                  ))}
+                <LinkIcon className="w-4 h-4" />
+              </button>
+            </PopoverTrigger>
+            <PopoverContent className="w-80 p-3 bg-zinc-950 border-zinc-800">
+              <div className="space-y-2">
+                <Label
+                  htmlFor="link-url"
+                  className="text-xs font-semibold text-zinc-400"
+                >
+                  URL do Link
+                </Label>
+                <div className="flex gap-2">
+                  <Input
+                    id="link-url"
+                    value={inputValue}
+                    onChange={(e) => setInputValue(e.target.value)}
+                    placeholder="https://..."
+                    className="bg-zinc-900 border-zinc-800 h-8 text-sm"
+                    onKeyDown={(e) =>
+                      e.key === "Enter" && handleInsert("link", inputValue)
+                    }
+                  />
+                  <Button
+                    size="icon"
+                    className="h-8 w-8"
+                    onClick={() => handleInsert("link", inputValue)}
+                  >
+                    <Check className="w-4 h-4" />
+                  </Button>
                 </div>
-              </PopoverContent>
-            </Popover>
-          </div>
+              </div>
+            </PopoverContent>
+          </Popover>
+
+          <Popover
+            open={activePopover === "tooltip"}
+            onOpenChange={(open) => {
+              if (open) saveSelection();
+              setActivePopover(open ? "tooltip" : null);
+            }}
+          >
+            <PopoverTrigger asChild>
+              <button
+                type="button"
+                className="p-2 hover:bg-zinc-800 rounded-md text-zinc-400 hover:text-zinc-200 transition-colors"
+                title="Dica [texto]?(dica)"
+              >
+                <Info className="w-4 h-4" />
+              </button>
+            </PopoverTrigger>
+            <PopoverContent className="w-80 p-3 bg-zinc-950 border-zinc-800">
+              <div className="space-y-2">
+                <Label
+                  htmlFor="tooltip-text"
+                  className="text-xs font-semibold text-zinc-400"
+                >
+                  Texto da Dica
+                </Label>
+                <div className="flex gap-2">
+                  <Input
+                    id="tooltip-text"
+                    value={inputValue}
+                    onChange={(e) => setInputValue(e.target.value)}
+                    placeholder="Digite a dica..."
+                    className="bg-zinc-900 border-zinc-800 h-8 text-sm"
+                    onKeyDown={(e) =>
+                      e.key === "Enter" && handleInsert("tooltip", inputValue)
+                    }
+                  />
+                  <Button
+                    size="icon"
+                    className="h-8 w-8"
+                    onClick={() => handleInsert("tooltip", inputValue)}
+                  >
+                    <Check className="w-4 h-4" />
+                  </Button>
+                </div>
+              </div>
+            </PopoverContent>
+          </Popover>
+
+          <Popover>
+            <PopoverTrigger asChild>
+              <button
+                type="button"
+                className="p-2 hover:bg-zinc-800 rounded-md text-zinc-400 hover:text-zinc-200 transition-colors flex items-center gap-1"
+                title="Cor do Texto"
+              >
+                <div className="w-4 h-4 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500" />
+              </button>
+            </PopoverTrigger>
+            <PopoverContent
+              className="w-auto p-3 bg-zinc-950 border-zinc-800"
+              align="center"
+            >
+              <div className="flex gap-2 flex-wrap max-w-[170px]">
+                {HIGHLIGHT_COLORS.map((c) => (
+                  <button
+                    key={c.name}
+                    type="button"
+                    onClick={() => insertFormat("color", c.value)}
+                    className={cn(
+                      "w-6 h-6 rounded-full border border-zinc-700 hover:scale-110 transition-transform flex items-center justify-center",
+                      c.preview,
+                    )}
+                    title={c.name}
+                  />
+                ))}
+              </div>
+            </PopoverContent>
+          </Popover>
         </div>
       </div>
 
-      <textarea
-        ref={textareaRef}
-        className={cn(
-          "w-full bg-transparent border-none outline-none resize-none placeholder:text-zinc-500/50 overflow-hidden text-lg md:text-xl text-gray-300 leading-relaxed whitespace-pre-wrap",
-          align === "center" && "text-center",
-          align === "right" && "text-right",
-          align === "justify" && "text-justify",
-        )}
-        placeholder="Digite seu texto aqui..."
-        rows={1}
-        value={element.content || ""}
-        onChange={(e) => {
-          onUpdate?.(element.id, { content: e.target.value });
-        }}
-      />
+      <div className="editor-container w-full min-h-[1.5em] text-lg md:text-xl leading-relaxed">
+        <Editor
+          value={element.content || ""}
+          onValueChange={(code) => onUpdate?.(element.id, { content: code })}
+          highlight={highlightContent}
+          padding={0}
+          textareaId={`editor-${element.id}`}
+          className={cn(
+            "min-h-[1.5em] font-sans",
+            // We rely on the style prop for base color to ensure it cascades correctly
+            align === "center" && "text-center",
+            align === "right" && "text-right",
+            align === "justify" && "text-justify",
+          )}
+          style={{
+            fontFamily: "inherit",
+            fontSize: "inherit",
+            lineHeight: "inherit",
+            minHeight: "1.5em",
+            color: "#f4f4f5", // zinc-100 base color
+          }}
+          textareaClassName="focus:outline-none bg-transparent placeholder:text-zinc-600 caret-white"
+          placeholder="Digite seu texto aqui..."
+        />
+      </div>
     </div>
   );
 }

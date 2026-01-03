@@ -10,16 +10,7 @@ import {
 } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 
-const COLORS = [
-  { name: "White", value: "text-zinc-100", bg: "bg-zinc-100" },
-  { name: "Red", value: "text-red-400", bg: "bg-red-400" },
-  { name: "Orange", value: "text-orange-400", bg: "bg-orange-400" },
-  { name: "Yellow", value: "text-yellow-400", bg: "bg-yellow-400" },
-  { name: "Green", value: "text-green-400", bg: "bg-green-400" },
-  { name: "Emerald", value: "text-emerald-400", bg: "bg-emerald-400" },
-  { name: "Blue", value: "text-blue-400", bg: "bg-blue-400" },
-  { name: "Purple", value: "text-purple-400", bg: "bg-purple-400" },
-];
+import { ELEMENT_COLORS } from "@/colors";
 
 export function TitleElement({
   element,
@@ -32,19 +23,19 @@ export function TitleElement({
   mode?: "edit" | "view";
   type?: "title" | "subtitle";
 }) {
-  const color = element.props?.color || "text-zinc-100"; // Default white/zinc-100
-  // Note: subtitles traditionally used text-gray-300, but logic can handle specific default later if needed.
-  // For now let's use the passed color or default.
+  const colorValue = element.props?.color || "#fafafa";
+  // Fallback for legacy class names (if any) or default to white
+  const activeColor = ELEMENT_COLORS.find(
+    (c) => c.value === colorValue || c.text === colorValue,
+  );
+  const colorClass = activeColor?.text || "text-zinc-50";
 
   const baseStyle =
     type === "title"
       ? "w-full text-xl font-bold tracking-tight wrap-break-word sm:text-2xl md:text-4xl"
       : "w-full text-md font-medium tracking-tight wrap-break-word sm:text-1xl md:text-2xl";
 
-  // If no color prop is set, subtitles default to gray-300 in utils, but here we can stick to the palette system.
-  // We'll trust the prop if present, else default.
-
-  const finalClass = cn(baseStyle, color);
+  const finalClass = cn(baseStyle, colorClass);
 
   if (mode === "view") {
     if (type === "title") {
@@ -79,14 +70,14 @@ export function TitleElement({
               <div
                 className={cn(
                   "w-4 h-4 rounded-full",
-                  COLORS.find((c) => c.value === color)?.bg || "bg-zinc-100",
+                  activeColor?.tailwind || "bg-zinc-50",
                 )}
               />
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-auto p-3" align="end">
             <div className="flex gap-2 flex-wrap max-w-[170px]">
-              {COLORS.map((c) => (
+              {ELEMENT_COLORS.map((c) => (
                 <button
                   key={c.name}
                   type="button"
@@ -97,11 +88,11 @@ export function TitleElement({
                   }
                   className={cn(
                     "w-6 h-6 rounded-full border border-zinc-700 hover:scale-110 transition-transform flex items-center justify-center",
-                    c.bg,
+                    c.tailwind,
                   )}
                   title={c.name}
                 >
-                  {color === c.value && (
+                  {(colorValue === c.value || colorValue === c.text) && (
                     <Check className="w-3 h-3 text-zinc-900 font-bold" />
                   )}
                 </button>

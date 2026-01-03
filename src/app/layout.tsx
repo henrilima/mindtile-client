@@ -3,10 +3,55 @@ import Navbar from "@/components/navbar";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
 import { cookies } from "next/headers";
+import BrainIcon from "@/images/Brain.png";
 
 export const metadata: Metadata = {
-  title: "MindTile",
-  description: "Desvende novos horizontes do conhecimento.",
+  title: {
+    template: "%s | MindTile",
+    default: "MindTile",
+  },
+  description:
+    "Explore artigos, tutoriais e ideias inovadoras sobre tecnologia, desenvolvimento e design. Desvende novos horizontes do conhecimento com o MindTile.",
+  metadataBase: new URL("https://mindtile.vercel.app"),
+  authors: [{ name: "MindTile Team", url: "https://mindtile.vercel.app" }],
+  keywords: [
+    "tecnologia",
+    "desenvolvimento",
+    "design",
+    "artigos",
+    "blog",
+    "conhecimento",
+  ],
+  icons: {
+    icon: [{ url: "/icon.ico" }, { url: BrainIcon.src, type: "image/png" }],
+    shortcut: "/icon.ico",
+    apple: BrainIcon.src,
+  },
+  openGraph: {
+    type: "website",
+    locale: "pt_BR",
+    url: "https://mindtile.vercel.app",
+    title: "MindTile",
+    description:
+      "Explore artigos, tutoriais e ideias inovadoras sobre tecnologia, desenvolvimento e design.",
+    siteName: "MindTile",
+    images: [
+      {
+        url: BrainIcon.src,
+        width: 1200,
+        height: 630,
+        alt: "MindTile",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "MindTile",
+    description:
+      "Explore artigos, tutoriais e ideias inovadoras sobre tecnologia, desenvolvimento e design.",
+    images: [BrainIcon.src],
+    creator: "@mindtile",
+  },
 };
 
 export default async function RootLayout({

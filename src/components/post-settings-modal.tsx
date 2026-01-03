@@ -19,6 +19,7 @@ import { updatePost } from "@/actions";
 import type { Post } from "@/types";
 import { Categories } from "@/categories";
 import { cn } from "@/lib/utils";
+import { ELEMENT_COLORS } from "@/colors";
 
 export function PostSettingsModal({
   post,
@@ -32,6 +33,9 @@ export function PostSettingsModal({
   const [title, setTitle] = useState(post.title);
   const [content, setContent] = useState(post.content);
   const [tags, setTags] = useState<string[]>(post.tags || []);
+  const [progressColor, setProgressColor] = useState(
+    post.props?.progress_color || "#6366f1",
+  );
 
   const handleToggleTag = (tagKey: string) => {
     if (tags.includes(tagKey)) {
@@ -52,11 +56,18 @@ export function PostSettingsModal({
         title,
         content,
         tags,
+        props: { progress_color: progressColor },
       });
 
       if (success) {
         toast.success("Post atualizado com sucesso!");
-        onUpdate?.({ ...post, title, content, tags });
+        onUpdate?.({
+          ...post,
+          title,
+          content,
+          tags,
+          props: { ...post.props, progress_color: progressColor },
+        });
         setOpen(false);
       } else {
         toast.error("Erro ao atualizar post.");
@@ -225,6 +236,27 @@ export function PostSettingsModal({
                   </button>
                 );
               })}
+            </div>
+
+            {/* Scroll Progress Color Selection */}
+            <div className="space-y-2 pt-2 border-t border-zinc-800 mt-4">
+              <Label>Cor da Barra de Progresso</Label>
+              <div className="flex gap-2 flex-wrap">
+                {ELEMENT_COLORS.map((color) => (
+                  <button
+                    key={color.value}
+                    type="button"
+                    onClick={() => setProgressColor(color.value)}
+                    className={cn(
+                      "w-6 h-6 rounded-full transition-all hover:scale-110 border border-transparent",
+                      color.tailwind,
+                      progressColor === color.value &&
+                        "ring-2 ring-white ring-offset-2 ring-offset-zinc-950",
+                    )}
+                    title={color.name}
+                  />
+                ))}
+              </div>
             </div>
           </div>
         </div>

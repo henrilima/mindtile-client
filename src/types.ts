@@ -9,7 +9,13 @@ export type ElementType =
   | "code"
   | "callout"
   | "embed"
-  | "poll";
+  | "poll"
+  | "blockquote"
+  | "button"
+  | "accordion"
+  | "checklist"
+  | "timeline"
+  | "tabs";
 
 export interface CanvasElement {
   id: string;
@@ -36,6 +42,7 @@ export interface Post {
   blocks?: Block[];
   likes: number;
   created_at: string;
+  props?: Record<string, any>;
 }
 
 export interface Elements {

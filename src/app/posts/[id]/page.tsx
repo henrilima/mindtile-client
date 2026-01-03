@@ -9,6 +9,50 @@ import { getBadges } from "@/categories";
 import { renderElement, elementsList } from "@/utils";
 
 import { LikeButton } from "./like-button";
+import { ScrollProgress } from "@/components/ui/scroll-progress";
+import type { Metadata } from "next";
+import BrainIcon from "@/images/Brain.png";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}): Promise<Metadata> {
+  const { id } = await params;
+  const post: Post = await getPost(id);
+
+  if (!post || Array.isArray(post)) {
+    return {
+      title: "Post não encontrado",
+      description: "O post que você está procurando não existe.",
+    };
+  }
+
+  // Find first image block to use as OG image, otherwise fallback
+  const imageBlock = post.blocks?.find((block) => block.type === "image");
+  const ogImage = imageBlock?.props?.url
+    ? [imageBlock.props.url]
+    : [BrainIcon.src];
+
+  return {
+    title: post.title,
+    description: post.content || "Leia este artigo no MindTile",
+    openGraph: {
+      type: "article",
+      title: post.title,
+      description: post.content || "Leia este artigo no MindTile",
+      url: `https://mindtile.vercel.app/posts/${id}`,
+      images: ogImage,
+      publishedTime: post.created_at,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: post.title,
+      description: post.content || "Leia este artigo no MindTile",
+      images: ogImage,
+    },
+  };
+}
 
 export default async function Page({
   params,
@@ -20,6 +64,7 @@ export default async function Page({
 
   return (
     <div className="w-full min-h-screen flex flex-col items-start justify-start gap-6 max-w-4xl mx-auto py-12 px-4 sm:px-6 lg:px-4 md:py-20">
+      <ScrollProgress color={post.props?.progress_color} />
       <Card className="w-full">
         <CardHeader>
           <Button
@@ -43,10 +88,14 @@ export default async function Page({
                 </div>
               )}
               <p className="text-sm text-indigo-400/70">
-                <span className="font-bold">Atualizado em: </span>{formatDate(post.created_at)}
+                <span className="font-bold">Atualizado em: </span>
+                {formatDate(post.created_at)}
               </p>
               <div>
-                <LikeButton initialLikes={post.likes} postId={String(post.id)} />
+                <LikeButton
+                  initialLikes={post.likes}
+                  postId={String(post.id)}
+                />
               </div>
             </div>
           </div>

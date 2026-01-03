@@ -61,9 +61,20 @@ function getDataWithTags(data: Post | Post[]) {
 
     tags.sort((a, b) => a.localeCompare(b));
 
+    let props = post.props;
+    try {
+      if (typeof props === "string") {
+        props = JSON.parse(props);
+      }
+    } catch (error) {
+      console.error("Erro ao fazer parse das props:", error);
+      props = {};
+    }
+
     return {
       ...post,
       tags,
+      props,
     };
   };
 
@@ -160,7 +171,12 @@ export async function saveBlocks(
 
 export async function updatePost(
   id: string,
-  data: { title: string; content: string; tags: string[] },
+  data: {
+    title: string;
+    content: string;
+    tags: string[];
+    props?: Record<string, any>;
+  },
 ) {
   try {
     const res = await fetch(`${_baseUrl}/post/${id}`, {
@@ -171,6 +187,7 @@ export async function updatePost(
       body: JSON.stringify({
         ...data,
         tags: data.tags.join(","),
+        props: data.props ? JSON.stringify(data.props) : undefined,
       }),
     });
 

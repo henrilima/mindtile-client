@@ -81,18 +81,19 @@ export function PollElement({
             if (selectedOption) {
               const isSelected = selectedOption === option.id;
               const isCorrect = option.id === correctOptionId;
-              const isWrongSelection = isSelected && !isCorrect;
 
-              let styles = "bg-zinc-800/50 border-zinc-700/50 text-zinc-500";
+              let styles = "";
               let icon = null;
 
               if (isCorrect) {
                 styles =
                   "bg-emerald-500/10 border-emerald-500/50 text-emerald-200";
                 icon = <CheckCircle2 className="w-5 h-5 text-emerald-500" />;
-              } else if (isWrongSelection) {
+              } else if (isSelected) {
                 styles =
                   "bg-yellow-500/10 border-yellow-500/50 text-yellow-200";
+              } else {
+                styles = "bg-red-500/10 border-red-500/50 text-red-200";
               }
 
               return (

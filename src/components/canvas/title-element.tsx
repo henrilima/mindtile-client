@@ -24,7 +24,6 @@ export function TitleElement({
   type?: "title" | "subtitle";
 }) {
   const colorValue = element.props?.color || "#fafafa";
-  // Fallback for legacy class names (if any) or default to white
   const activeColor = ELEMENT_COLORS.find(
     (c) => c.value === colorValue || c.text === colorValue,
   );
@@ -58,7 +57,6 @@ export function TitleElement({
         />
       </div>
 
-      {/* Color picker trigger - shows on hover/focus */}
       <div className="opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity">
         <Popover>
           <PopoverTrigger asChild>

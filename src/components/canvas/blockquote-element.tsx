@@ -4,9 +4,15 @@ import type { CanvasElement } from "@/types";
 
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Quote } from "lucide-react";
+import { Quote, Palette } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ELEMENT_COLORS } from "@/colors";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Button } from "@/components/ui/button";
 
 export function BlockquoteElement({
   element,
@@ -18,21 +24,28 @@ export function BlockquoteElement({
   mode?: "edit" | "view";
 }) {
   const author = element.props?.author || "";
-  const borderColor = element.props?.borderColor || "#6366f1"; // Default Indigo-500
+  const borderColor = element.props?.borderColor || "#6366f1";
 
   if (mode === "view") {
     if (!element.content) return null;
     return (
       <blockquote
-        className="border-l-4 pl-4 py-2 italic text-zinc-300 my-4 bg-zinc-900/30 rounded-r-lg"
+        className="relative my-8 pl-8 pr-6 py-6 border-l-4 bg-zinc-900/40 rounded-r-2xl transition-all hover:bg-zinc-900/60"
         style={{ borderColor: borderColor }}
       >
-        <p className="text-lg font-serif leading-relaxed mb-2">
+        <Quote
+          className="absolute top-4 right-4 w-10 h-10 opacity-40"
+          style={{ color: borderColor, fill: borderColor }}
+        />
+        <p className="text-xl md:text-2xl font-serif leading-relaxed text-zinc-200 italic relative z-10">
           "{element.content}"
         </p>
         {author && (
-          <footer className="text-sm text-zinc-500 font-sans not-italic">
-            — <span className="font-semibold text-zinc-400">{author}</span>
+          <footer className="mt-4 flex items-center gap-3 text-sm text-zinc-400">
+            <div className="h-px w-8 bg-zinc-700" />
+            <span className="font-semibold tracking-wide uppercase text-xs">
+              {author}
+            </span>
           </footer>
         )}
       </blockquote>
@@ -40,36 +53,48 @@ export function BlockquoteElement({
   }
 
   return (
-    <div className="w-full bg-zinc-900 border border-zinc-800 rounded-xl p-4 space-y-3">
+    <div className="w-full bg-zinc-900 border border-zinc-800 rounded-2xl p-4 space-y-3">
       <div className="space-y-2">
-        <div className="flex items-center justify-between mb-2">
+        <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2 text-zinc-400">
             <Quote className="w-4 h-4" />
             <span className="text-xs font-semibold uppercase tracking-wider">
               Citação
             </span>
           </div>
-        </div>
 
-        <div className="flex gap-2 flex-wrap mb-4 px-1 max-w-[280px]">
-          {ELEMENT_COLORS.map((color) => (
-            <button
-              key={color.value}
-              type="button"
-              onClick={() =>
-                onUpdate?.(element.id, {
-                  props: { ...element.props, borderColor: color.value },
-                })
-              }
-              className={cn(
-                "w-4 h-4 rounded-full transition-all hover:scale-110",
-                color.tailwind,
-                borderColor === color.value &&
-                  "ring-1 ring-white ring-offset-1 ring-offset-zinc-950",
-              )}
-              title={color.name}
-            />
-          ))}
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-6 w-6 rounded-full hover:bg-zinc-800 text-zinc-400 hover:text-zinc-200"
+              >
+                <Palette className="w-4 h-4" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-64 p-2 grid grid-cols-5 gap-1 bg-zinc-900 border-zinc-800">
+              {ELEMENT_COLORS.map((color) => (
+                <button
+                  key={color.value}
+                  type="button"
+                  onClick={() =>
+                    onUpdate?.(element.id, {
+                      props: { ...element.props, borderColor: color.value },
+                    })
+                  }
+                  className={cn(
+                    "w-8 h-8 rounded-full border-2 transition-all hover:scale-110",
+                    color.tailwind,
+                    borderColor === color.value
+                      ? "border-white"
+                      : "border-transparent",
+                  )}
+                  title={color.name}
+                />
+              ))}
+            </PopoverContent>
+          </Popover>
         </div>
 
         <Textarea

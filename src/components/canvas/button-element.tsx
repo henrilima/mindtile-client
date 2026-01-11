@@ -17,9 +17,15 @@ import {
   AlignRight,
   ExternalLink,
   MousePointerClick,
+  Palette,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ELEMENT_COLORS } from "@/colors";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 
 export function ButtonElement({
   element,
@@ -39,7 +45,6 @@ export function ButtonElement({
   if (mode === "view") {
     if (!label) return null;
 
-    // Construct dynamic styles
     const style: React.CSSProperties = {};
     if (customColor) {
       if (variant === "default") {
@@ -95,11 +100,45 @@ export function ButtonElement({
   return (
     <div className="w-full bg-zinc-900 border border-zinc-800 rounded-xl p-4 space-y-4">
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2 text-zinc-400">
-          <MousePointerClick className="w-4 h-4" />
-          <span className="text-xs font-semibold uppercase tracking-wider">
-            Botão
-          </span>
+        <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 text-zinc-400">
+            <MousePointerClick className="w-4 h-4" />
+            <span className="text-xs font-semibold uppercase tracking-wider">
+              Botão
+            </span>
+          </div>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-6 w-6 rounded-full hover:bg-zinc-800 text-zinc-400 hover:text-zinc-200"
+              >
+                <Palette className="w-4 h-4" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-64 p-2 grid grid-cols-5 gap-1 bg-zinc-900 border-zinc-800">
+              {ELEMENT_COLORS.map((color) => (
+                <button
+                  key={color.value}
+                  type="button"
+                  onClick={() =>
+                    onUpdate?.(element.id, {
+                      props: { ...element.props, color: color.value },
+                    })
+                  }
+                  className={cn(
+                    "w-8 h-8 rounded-full border-2 transition-all hover:scale-110",
+                    color.tailwind,
+                    customColor === color.value
+                      ? "border-white"
+                      : "border-transparent",
+                  )}
+                  title={color.name}
+                />
+              ))}
+            </PopoverContent>
+          </Popover>
         </div>
         <ToggleGroup
           type="single"
@@ -160,60 +199,35 @@ export function ButtonElement({
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <label
-            htmlFor={`button-style-${element.id}`}
-            className="text-xs text-zinc-500 font-medium"
+      <div className="space-y-2">
+        <label
+          htmlFor={`button-style-${element.id}`}
+          className="text-xs text-zinc-500 font-medium"
+        >
+          Estilo
+        </label>
+        <Select
+          value={variant}
+          onValueChange={(val) =>
+            onUpdate?.(element.id, {
+              props: { ...element.props, variant: val },
+            })
+          }
+        >
+          <SelectTrigger
+            id={`button-style-${element.id}`}
+            className="w-full bg-zinc-950 border-zinc-800"
           >
-            Estilo
-          </label>
-          <Select
-            value={variant}
-            onValueChange={(val) =>
-              onUpdate?.(element.id, {
-                props: { ...element.props, variant: val },
-              })
-            }
-          >
-            <SelectTrigger
-              id={`button-style-${element.id}`}
-              className="w-full bg-zinc-950 border-zinc-800"
-            >
-              <SelectValue placeholder="Selecione o estilo" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="default">Destaque (Sólido)</SelectItem>
-              <SelectItem value="secondary">Secundário</SelectItem>
-              <SelectItem value="outline">Contorno</SelectItem>
-              <SelectItem value="ghost">Transparente</SelectItem>
-              <SelectItem value="link">Apenas Link</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-        <div className="space-y-2">
-          <span className="text-xs text-zinc-500 font-medium">Cor</span>
-          <div className="flex gap-2 flex-wrap max-w-[280px]">
-            {ELEMENT_COLORS.map((color) => (
-              <button
-                key={color.value}
-                type="button"
-                onClick={() =>
-                  onUpdate?.(element.id, {
-                    props: { ...element.props, color: color.value },
-                  })
-                }
-                className={cn(
-                  "w-6 h-6 rounded-full transition-all hover:scale-110 border border-transparent",
-                  color.tailwind,
-                  customColor === color.value &&
-                    "ring-2 ring-white ring-offset-2 ring-offset-zinc-950",
-                )}
-                title={color.name}
-              />
-            ))}
-          </div>
-        </div>
+            <SelectValue placeholder="Selecione o estilo" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="default">Destaque (Sólido)</SelectItem>
+            <SelectItem value="secondary">Secundário</SelectItem>
+            <SelectItem value="outline">Contorno</SelectItem>
+            <SelectItem value="ghost">Transparente</SelectItem>
+            <SelectItem value="link">Apenas Link</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
     </div>
   );

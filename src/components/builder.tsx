@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { toast } from "sonner";
+import { Card, CardContent } from "@/components/ui/card";
 
 import type { CanvasElement, ElementType, Post } from "@/types";
 import { saveBlocks } from "@/actions";
@@ -177,14 +178,28 @@ export default function Builder({ post }: { post: Post }) {
         )}
       </div>
 
-      <DragOverlay>
+      <DragOverlay dropAnimation={null}>
         {activeId ? (
           elementsList[activeId] ? (
             <Sidebar.Preview id={activeId} elements={elementsList} />
           ) : (
             (() => {
               const el = canvasElements.find((e) => e.id === activeId);
-              return el ? <div>{renderElement(el)}</div> : null;
+              if (!el) return null;
+
+              const typeDef = elementsList[el.type];
+              if (!typeDef) return null;
+
+              return (
+                <Card className="p-3 w-[240px] shadow-2xl bg-zinc-900 border-zinc-700 opacity-90 cursor-grabbing">
+                  <CardContent className="flex items-center justify-start gap-3 p-0">
+                    <typeDef.icon className="text-indigo-400 w-5 h-5" />
+                    <span className="font-medium text-zinc-200">
+                      {typeDef.label}
+                    </span>
+                  </CardContent>
+                </Card>
+              );
             })()
           )
         ) : null}

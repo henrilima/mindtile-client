@@ -33,18 +33,15 @@ export function ChecklistElement({
     { id: "2", text: "Tarefa 2", checked: false },
   ];
 
-  // Local state for view mode interaction
   const [localItems, setLocalItems] = useState<ChecklistItem[]>(items);
 
-  const colorValue = element.props?.color || "#6366f1"; // Default Indigo
+  const colorValue = element.props?.color || "#6366f1";
   const activeColor = ELEMENT_COLORS.find((c) => c.value === colorValue);
 
-  // Tailwind classes for the checked state based on color
   const getCheckedStyle = (isChecked: boolean) => {
     if (!isChecked)
       return "border-zinc-700 text-transparent hover:border-zinc-500";
 
-    // Default to indigo if color not found, mostly for safety
     if (!activeColor) return "bg-indigo-500 border-indigo-500 text-white";
 
     return cn(activeColor.tailwind, activeColor.border, "text-white");
@@ -81,7 +78,6 @@ export function ChecklistElement({
 
   const toggleCheck = (id: string, isEditMode: boolean) => {
     if (isEditMode) {
-      // In edit mode, we update the actual initial state
       onUpdate?.(element.id, {
         props: {
           ...element.props,
@@ -91,7 +87,6 @@ export function ChecklistElement({
         },
       });
     } else {
-      // In view mode, we only update local state
       setLocalItems((prev) =>
         prev.map((item) =>
           item.id === id ? { ...item, checked: !item.checked } : item,

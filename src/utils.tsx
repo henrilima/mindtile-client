@@ -14,6 +14,8 @@ import {
   CheckSquare,
   CalendarDays,
   LayoutTemplate,
+  MoveVertical,
+  BarChart2,
 } from "lucide-react";
 import { Separator } from "./components/ui/separator";
 import type { CanvasElement, ElementCollection } from "./types";
@@ -24,12 +26,14 @@ import { EmbedElement } from "./components/canvas/embed-element";
 import { TextElement } from "./components/canvas/text-element";
 import { TitleElement } from "./components/canvas/title-element";
 import { PollElement } from "./components/canvas/poll-element";
+import { VotingElement } from "./components/canvas/voting-element";
 import { BlockquoteElement } from "./components/canvas/blockquote-element";
 import { ButtonElement } from "./components/canvas/button-element";
 import { AccordionElement } from "./components/canvas/accordion-element";
 import { ChecklistElement } from "./components/canvas/checklist-element";
 import { TimelineElement } from "./components/canvas/timeline-element";
 import { TabsElement } from "./components/canvas/tabs-element";
+import { SpacerElement } from "./components/canvas/spacer-element";
 
 export const elementsList: ElementCollection = {
   title: {
@@ -109,6 +113,13 @@ export const elementsList: ElementCollection = {
     icon: ListChecks,
     style: "",
   },
+  voting: {
+    id: "voting",
+    label: "Votação",
+    type: "voting",
+    icon: BarChart2,
+    style: "",
+  },
   code: {
     id: "code",
     label: "Código",
@@ -136,6 +147,13 @@ export const elementsList: ElementCollection = {
     type: "separator",
     icon: SquareSplitVertical,
     style: "mt-2 mb-4",
+  },
+  spacer: {
+    id: "spacer",
+    label: "Espaçamento",
+    type: "spacer",
+    icon: MoveVertical,
+    style: "",
   },
 };
 
@@ -167,6 +185,8 @@ export function renderElement(
         if (!el.content || !el.props?.options || el.props.options.length < 2)
           return null;
         return <PollElement element={el} mode="view" />;
+      case "voting":
+        return <VotingElement element={el} mode="view" />;
       case "code":
         if (!el.content) return null;
         return <CodeElement element={el} mode="view" />;
@@ -177,6 +197,8 @@ export function renderElement(
         return <EmbedElement element={el} mode="view" />;
       case "separator":
         return <Separator className={elementsList.separator.style} />;
+      case "spacer":
+        return <SpacerElement element={el} mode="view" />;
       case "blockquote":
         return <BlockquoteElement element={el} mode="view" />;
       case "button":
@@ -219,6 +241,8 @@ export function renderElement(
       return <ImageElement element={el} onUpdate={onUpdate} />;
     case "poll":
       return <PollElement element={el} onUpdate={onUpdate} mode="edit" />;
+    case "voting":
+      return <VotingElement element={el} onUpdate={onUpdate} mode="edit" />;
     case "code":
       return <CodeElement element={el} onUpdate={onUpdate} mode="edit" />;
     case "callout":
@@ -227,6 +251,8 @@ export function renderElement(
       return <EmbedElement element={el} onUpdate={onUpdate} mode="edit" />;
     case "separator":
       return <Separator className={elementsList.separator.style} />;
+    case "spacer":
+      return <SpacerElement element={el} onUpdate={onUpdate} mode="edit" />;
     case "blockquote":
       return <BlockquoteElement element={el} onUpdate={onUpdate} mode="edit" />;
     case "button":

@@ -10,12 +10,14 @@ export type ElementType =
   | "callout"
   | "embed"
   | "poll"
+  | "voting"
   | "blockquote"
   | "button"
   | "accordion"
   | "checklist"
   | "timeline"
-  | "tabs";
+  | "tabs"
+  | "spacer";
 
 export interface CanvasElement {
   id: string;
@@ -42,6 +44,7 @@ export interface Post {
   blocks?: Block[];
   likes: number;
   created_at: string;
+  date?: string;
   props?: Record<string, any>;
 }
 
@@ -54,4 +57,4 @@ export interface Elements {
 }
 export type ElementCollection = Record<string, Elements>;
 
-export const _baseUrl = "https://mindtile-api.vercel.app/api"; //"http://localhost:3000/api";
+export const _baseUrl = "https://mindtile-api.vercel.app/api";

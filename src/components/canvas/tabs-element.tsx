@@ -34,10 +34,9 @@ export function TabsElement({
     { id: "2", title: "Aba 2", content: "Conteúdo da aba 2" },
   ];
 
-  // View mode local state
   const [activeTabId, setActiveTabId] = useState<string>(tabs[0]?.id || "1");
 
-  const colorValue = element.props?.color || "#6366f1"; // Default Indigo
+  const colorValue = element.props?.color || "#6366f1";
   const activeColor = ELEMENT_COLORS.find((c) => c.value === colorValue);
 
   const colorBg = activeColor?.tailwind || "bg-indigo-500";
@@ -83,12 +82,10 @@ export function TabsElement({
   if (mode === "view") {
     if (!tabs || tabs.length === 0) return null;
 
-    // Ensure active tab exists
     const currentTab = tabs.find((t) => t.id === activeTabId) || tabs[0];
 
     return (
       <div className="w-full my-6">
-        {/* Tab Headers */}
         <div className="flex flex-wrap border-b border-zinc-800">
           {tabs.map((tab) => {
             const isActive = tab.id === currentTab.id;
@@ -105,7 +102,7 @@ export function TabsElement({
                         activeColor?.border
                           ? `border-${activeColor.value}`
                           : "border-indigo-500",
-                      ) // This assumes standard styling, better to use direct style or specific class map
+                      )
                     : "text-zinc-400 border-transparent hover:border-zinc-700",
                 )}
                 style={isActive ? { borderColor: colorValue } : {}}
@@ -116,7 +113,6 @@ export function TabsElement({
           })}
         </div>
 
-        {/* Tab Content */}
         <div className="py-4 animate-in fade-in slide-in-from-top-2 duration-200">
           <div className="text-zinc-300 leading-relaxed min-h-[100px] whitespace-pre-wrap">
             {currentTab.content}

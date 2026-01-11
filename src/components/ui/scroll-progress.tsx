@@ -35,6 +35,7 @@ export function ScrollProgress({
         "fixed top-0 left-0 right-0 h-1.5 z-50 bg-transparent",
         className,
       )}
+      suppressHydrationWarning
     >
       <div
         className="h-full transition-all duration-150 ease-out"

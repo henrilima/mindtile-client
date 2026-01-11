@@ -5,11 +5,18 @@ export const Categories: Record<
   string,
   { label: string; color?: string; isDark?: boolean; priority?: boolean }
 > = Object.freeze({
+  astronomia: { label: "Astronomia", color: "bg-purple-500", priority: true },
+  historia: { label: "História", color: "bg-yellow-500", priority: true },
+  artes: { label: "Artes", color: "bg-red-500", priority: true },
+  biologia: { label: "Biologia", color: "bg-green-500", priority: true },
+  ciencias: { label: "Ciências", color: "bg-blue-500", priority: true },
+
+  extra: { label: "EXTRA", priority: true },
+
   religioes: { label: "Religiões" },
   cultura: { label: "Cultura" },
   medicina: { label: "Medicina" },
   zoologia: { label: "Zoologia" },
-  astronomia: { label: "Astronomia" },
   linguistica: { label: "Linguística" },
   comunicacao: { label: "Comunicação" },
   tecnologia: { label: "Tecnologia" },
@@ -22,18 +29,13 @@ export const Categories: Record<
   economia: { label: "Economia" },
   direito: { label: "Direito" },
   engenharia: { label: "Engenharia" },
-
-  ciencias: { label: "Ciências", color: "bg-green-500", priority: true },
-  historia: { label: "História", color: "bg-yellow-500", priority: true },
-  biologia: { label: "Biologia", color: "bg-emerald-500", priority: true },
-  portugues: { label: "Português", color: "bg-red-500", priority: true },
-  matematica: { label: "Matemática", color: "bg-blue-500", priority: true },
-  fisica: { label: "Física", color: "bg-indigo-500", priority: true },
-  quimica: { label: "Química", color: "bg-purple-500", priority: true },
-  geografia: { label: "Geografia", color: "bg-amber-500", priority: true },
-  filosofia: { label: "Filosofia", color: "bg-slate-500", priority: true },
-  sociologia: { label: "Sociologia", color: "bg-stone-500", priority: true },
-  artes: { label: "Artes", color: "bg-fuchsia-500", priority: true },
+  portugues: { label: "Português" },
+  matematica: { label: "Matemática" },
+  fisica: { label: "Física" },
+  quimica: { label: "Química" },
+  geografia: { label: "Geografia" },
+  filosofia: { label: "Filosofia" },
+  sociologia: { label: "Sociologia" },
 });
 
 export const getBadges = (tags: string | string[]) => {

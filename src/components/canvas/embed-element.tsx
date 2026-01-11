@@ -13,8 +13,6 @@ export function EmbedElement({
   mode?: "edit" | "view";
 }) {
   const src = element.content || "";
-  // Simple check for YouTube to convert to embed URL if needed could go here,
-  // but for now we assume direct URL or handle generic iframe.
 
   if (mode === "view") {
     if (!src) return null;

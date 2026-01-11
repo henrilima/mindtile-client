@@ -37,10 +37,9 @@ export function TimelineElement({
       description: "Descrição do evento 1",
     },
   ];
-  const colorValue = element.props?.color || "#6366f1"; // Default Indigo
+  const colorValue = element.props?.color || "#6366f1";
   const activeColor = ELEMENT_COLORS.find((c) => c.value === colorValue);
 
-  // Styles based on color
   const colorBg = activeColor?.tailwind || "bg-indigo-500";
   const colorText = activeColor?.text || "text-indigo-400";
 
@@ -85,7 +84,6 @@ export function TimelineElement({
         <div className="relative border-l border-zinc-800 space-y-12">
           {events.map((event) => (
             <div key={event.id} className="relative pl-8">
-              {/* Dot on line */}
               <div
                 className={cn(
                   "absolute -left-[5px] top-1.5 w-2.5 h-2.5 rounded-full ring-4 ring-zinc-950",

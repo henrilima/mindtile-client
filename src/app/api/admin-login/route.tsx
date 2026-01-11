@@ -6,11 +6,10 @@ export async function POST(req: Request) {
   if (password === process.env.ADMIN_PASSWORD) {
     const response = NextResponse.json({ ok: true });
 
-    // define cookie
     response.cookies.set("admin", "true", {
       httpOnly: true,
       path: "/",
-      maxAge: 60 * 60 * 24, // 1 dia
+      maxAge: 60 * 60 * 24,
     });
 
     return response;

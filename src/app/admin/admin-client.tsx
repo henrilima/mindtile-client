@@ -64,7 +64,7 @@ export function DialogComponent({ posts, triggerText }: DialogComponentProps) {
   }
 
   function handleConfirm() {
-    const action = triggerText.toLowerCase() === "editar";
+    const action = triggerText.toLowerCase().includes("editar");
 
     if (action) {
       router.push(`/admin/edit/${value}`);
@@ -94,24 +94,37 @@ export function DialogComponent({ posts, triggerText }: DialogComponentProps) {
     <>
       <Dialog open={selectionOpen} onOpenChange={setSelectionOpen}>
         <DialogTrigger asChild>
-          <Button variant="outline">{triggerText}</Button>
+          <Button
+            variant="outline"
+            className="w-full bg-zinc-900 border-zinc-800 text-zinc-300 hover:bg-zinc-800 hover:text-zinc-100 rounded-lg cursor-pointer"
+          >
+            {triggerText}
+          </Button>
         </DialogTrigger>
-        <DialogContent>
+        <DialogContent className="bg-zinc-950 border-zinc-800 rounded-2xl shadow-2xl">
           <DialogHeader>
-            <DialogTitle>{triggerText} post</DialogTitle>
+            <DialogTitle className="text-zinc-100 text-xl font-bold">
+              {triggerText} post
+            </DialogTitle>
           </DialogHeader>
-          <div className="flex flex-col gap-2">
-            <p>Qual post você deseja {triggerText.toLowerCase()}?</p>
+          <div className="flex flex-col gap-4 py-4">
+            <p className="text-zinc-400">
+              Qual post você deseja {triggerText.toLowerCase()}?
+            </p>
             <Select onValueChange={handleSelect}>
-              <SelectTrigger className="w-full">
+              <SelectTrigger className="w-full bg-zinc-900 border-zinc-800 text-zinc-300 rounded-lg focus:ring-indigo-500/20">
                 <SelectValue placeholder="Selecione o post" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-zinc-900 border-zinc-800 text-zinc-300 rounded-xl">
                 <SelectGroup>
-                  <SelectLabel>Posts</SelectLabel>
+                  <SelectLabel className="text-zinc-500">Posts</SelectLabel>
                   {posts.map((p) => {
                     return (
-                      <SelectItem key={p.id} value={`${p.id}`}>
+                      <SelectItem
+                        key={p.id}
+                        value={`${p.id}`}
+                        className="focus:bg-zinc-800 focus:text-zinc-100 cursor-pointer"
+                      >
                         {p.id} - {p.title}
                       </SelectItem>
                     );
@@ -120,11 +133,20 @@ export function DialogComponent({ posts, triggerText }: DialogComponentProps) {
               </SelectContent>
             </Select>
           </div>
-          <DialogFooter>
+          <DialogFooter className="gap-4 sm:gap-4 flex-col sm:flex-row">
             <DialogClose asChild>
-              <Button variant="outline">Cancelar</Button>
+              <Button
+                variant="ghost"
+                className="hover:bg-zinc-900 text-zinc-400 hover:text-zinc-200 cursor-pointer"
+              >
+                Cancelar
+              </Button>
             </DialogClose>
-            <Button disabled={disabled} onClick={handleConfirm}>
+            <Button
+              disabled={disabled}
+              onClick={handleConfirm}
+              className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg cursor-pointer"
+            >
               Prosseguir
             </Button>
           </DialogFooter>
@@ -132,24 +154,30 @@ export function DialogComponent({ posts, triggerText }: DialogComponentProps) {
       </Dialog>
 
       <AlertDialog open={open} onOpenChange={setOpen}>
-        <AlertDialogContent>
+        <AlertDialogContent className="bg-zinc-950 border-zinc-800 rounded-2xl shadow-2xl">
           <AlertDialogHeader>
-            <AlertDialogTitle>Confirmação de exclusão</AlertDialogTitle>
-            <AlertDialogDescription>
-              Deseja mesmo deletar "
-              <span className="text-indigo-400 font-bold">{title}</span>"?
+            <AlertDialogTitle className="text-zinc-100 text-xl font-bold">
+              Confirmação de exclusão
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-zinc-400 text-base">
+              Deseja realmente deletar o post "
+              <span className="text-indigo-400 font-semibold">{title}</span>"?
+              Esta ação não pode ser desfeita.
             </AlertDialogDescription>
           </AlertDialogHeader>
 
-          <AlertDialogFooter>
-            <AlertDialogCancel onClick={() => setOpen(false)}>
+          <AlertDialogFooter className="gap-2 sm:gap-0">
+            <AlertDialogCancel
+              onClick={() => setOpen(false)}
+              className="bg-transparent border-zinc-800 text-zinc-400 hover:bg-zinc-900 hover:text-zinc-200 cursor-pointer"
+            >
               Cancelar
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={() => confirmDelete()}
-              className="bg-red-800 text-zinc-50"
+              className="bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg border-none cursor-pointer"
             >
-              Confirmar
+              Deletar Permanentemente
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

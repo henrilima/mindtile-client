@@ -5,6 +5,7 @@ export async function createPost(data: {
   title: string;
   content: string;
   theme: string;
+  date?: string;
 }) {
   try {
     const res = await fetch(`${_baseUrl}/post/`, {
@@ -19,7 +20,8 @@ export async function createPost(data: {
       throw new Error("Erro ao criar post");
     }
 
-    return true;
+    const responseData = await res.json();
+    return responseData.id || true;
   } catch (error) {
     console.error("Erro ao criar post:", error);
     return false;
@@ -46,8 +48,15 @@ export async function deletePost(id: string) {
   }
 }
 
-function getDataWithTags(data: Post | Post[]) {
+function getDataWithTags(data: Post | Post[], filterFuture: boolean = true) {
   const processPost = (post: any) => {
+    const date = new Date(post.date);
+    const now = new Date();
+
+    if (filterFuture && date > now) {
+      return null;
+    }
+
     let tags: string[] = [];
 
     if (Array.isArray(post.tags)) {
@@ -79,7 +88,7 @@ function getDataWithTags(data: Post | Post[]) {
   };
 
   if (Array.isArray(data)) {
-    return data.map(processPost);
+    return data.map(processPost).filter((post): post is Post => post !== null);
   }
 
   return processPost(data);
@@ -92,19 +101,23 @@ export async function getPost(id: string) {
       cache: "no-store",
     });
 
+    if (res.status === 404) {
+      return null;
+    }
+
     if (!res.ok) {
       throw new Error("Erro ao buscar dados");
     }
 
     const data = await res.json();
-    return getDataWithTags(data);
+    return getDataWithTags(data, false);
   } catch (error) {
     console.error(error);
-    return [];
+    return null;
   }
 }
 
-export async function getPosts(): Promise<Post[]> {
+export async function getPosts(filterFuture: boolean = true): Promise<Post[]> {
   try {
     const res = await fetch(`${_baseUrl}/post`, {
       method: "GET",
@@ -116,7 +129,7 @@ export async function getPosts(): Promise<Post[]> {
     }
 
     const data = await res.json();
-    return getDataWithTags(data);
+    return getDataWithTags(data, filterFuture) as Post[];
   } catch (error) {
     console.error(error);
     return [];
@@ -175,6 +188,7 @@ export async function updatePost(
     title: string;
     content: string;
     tags: string[];
+    date?: string;
     props?: Record<string, any>;
   },
 ) {
@@ -198,6 +212,56 @@ export async function updatePost(
     return true;
   } catch (error) {
     console.error("Erro ao atualizar post:", error);
+    return false;
+  }
+}
+
+export async function voteOnBlock(
+  postId: string,
+  blockId: string,
+  optionId: string,
+) {
+  try {
+    const post = await getPost(postId);
+    if (!post || !post.blocks) return false;
+
+    const block = post.blocks.find((b: Block) => b.id === blockId);
+    if (!block) return false;
+
+    let props = block.props || {};
+    if (typeof props === "string") {
+      try {
+        props = JSON.parse(props);
+      } catch (e) {
+        props = {};
+      }
+    }
+
+    const currentVotes = props.votes || {};
+    const newVotes = {
+      ...currentVotes,
+      [optionId]: (currentVotes[optionId] || 0) + 1,
+    };
+
+    const updatedProps = { ...props, votes: newVotes };
+
+    const res = await fetch(`${_baseUrl}/block/${blockId}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        props: JSON.stringify(updatedProps),
+      }),
+    });
+
+    if (!res.ok) {
+      throw new Error("Erro ao computar voto");
+    }
+
+    return true;
+  } catch (error) {
+    console.error("Erro ao votar:", error);
     return false;
   }
 }

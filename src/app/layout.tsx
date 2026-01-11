@@ -4,6 +4,7 @@ import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
 import { cookies } from "next/headers";
 import BrainIcon from "@/images/Brain.png";
+import { ShortcutListener } from "@/components/shortcut-listener";
 
 export const metadata: Metadata = {
   title: {
@@ -63,8 +64,12 @@ export default async function RootLayout({
   const isAdmin = cookieStore.get("admin")?.value === "true";
 
   return (
-    <html lang="pt" className="dark">
-      <body className="antialiased relative min-h-screen bg-background">
+    <html lang="pt" className="dark" suppressHydrationWarning>
+      <body
+        className="antialiased relative min-h-screen bg-background"
+        suppressHydrationWarning
+      >
+        <ShortcutListener />
         <Navbar isAdmin={isAdmin}></Navbar>
         {children}
         <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">

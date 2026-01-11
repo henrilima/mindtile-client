@@ -131,40 +131,34 @@ export function TextElement({
   };
 
   const highlightContent = (code: string) => {
-    // Basic HTML escaping
     let highlighted = code
       .replace(/&/g, "&amp;")
       .replace(/</g, "&lt;")
       .replace(/>/g, "&gt;");
 
-    // Bold: **text**
     highlighted = highlighted.replace(
       /(\*\*|__)(.*?)\1/g,
       '<span class="text-zinc-500 font-normal">$1</span><strong class="text-gray-100">$2</strong><span class="text-zinc-500 font-normal">$1</span>',
     );
 
-    // Italic: _text_
     highlighted = highlighted.replace(
       /(\*|_)(.*?)\1/g,
       '<span class="text-zinc-500 font-normal">$1</span><em class="text-gray-100">$2</em><span class="text-zinc-500 font-normal">$1</span>',
     );
 
-    // Tooltips: [text]?(tip)
     highlighted = highlighted.replace(
       /\[(.*?)\]\?\((.*?)\)/g,
       '<span class="text-zinc-500">[</span><span class="underline decoration-dotted decoration-zinc-500 underline-offset-4 text-gray-100" title="$2">$1</span><span class="text-zinc-500">]?($2)</span>',
     );
 
-    // Links: [text](url)
     highlighted = highlighted.replace(
       /\[(.*?)\]\((.*?)\)/g,
       '<span class="text-zinc-500">[</span><span class="text-blue-400 underline">$1</span><span class="text-zinc-500">]($2)</span>',
     );
 
-    // Colors: [text]{color}
     HIGHLIGHT_COLORS.forEach((color) => {
-      // Escape for regex
       const regex = new RegExp(`\\[(.*?)\\]\\{${color.value}\\}`, "g");
+
       highlighted = highlighted.replace(
         regex,
         `<span class="text-zinc-500">[</span><span class="${color.classes}">$1</span><span class="text-zinc-500">]{${color.value}}</span>`,
@@ -180,15 +174,11 @@ export function TextElement({
 
     processed = processed.replace(/\\\\/g, "  \n");
 
-    // Transform Custom Syntax to Markdown Links
-
-    // Tooltips: [text]?(tip) -> [text](tooltip:tipEncoded)
     processed = processed.replace(
       /\[(.*?)\]\?\((.*?)\)/g,
-      (match, text, tip) => `[${text}](tooltip:${encodeURIComponent(tip)})`,
+      (_, text, tip) => `[${text}](tooltip:${encodeURIComponent(tip)})`,
     );
 
-    // Colors: [text]{color} -> [text](color:blue)
     HIGHLIGHT_COLORS.forEach((color) => {
       const regex = new RegExp(`\\[(.*?)\\]\\{${color.value}\\}`, "g");
       processed = processed.replace(regex, `[$1](color:${color.value})`);
@@ -201,7 +191,7 @@ export function TextElement({
     return (
       <div
         className={cn(
-          "w-full prose prose-invert max-w-none text-gray-300 leading-relaxed break-words",
+          "w-full prose prose-invert max-w-none text-gray-300 leading-relaxed wrap-break-word",
           align === "center" && "text-center",
           align === "right" && "text-right",
           align === "justify" && "text-justify",
@@ -215,7 +205,6 @@ export function TextElement({
             a: ({ href, children, ...props }) => {
               if (!href) return <a {...props}>{children}</a>;
 
-              // Handle Tooltips
               if (href.startsWith("tooltip:")) {
                 const tooltipText = decodeURIComponent(href.slice(8));
                 return (
@@ -234,7 +223,7 @@ export function TextElement({
                       side="top"
                       className="w-auto max-w-[320px] p-2 bg-zinc-950 border-zinc-800 text-sm text-zinc-300"
                     >
-                      <p className="whitespace-normal break-words">
+                      <p className="whitespace-normal wrap-break-word">
                         {tooltipText}
                       </p>
                     </PopoverContent>
@@ -242,7 +231,6 @@ export function TextElement({
                 );
               }
 
-              // Handle Colors
               if (href.startsWith("color:")) {
                 const colorValue = href.slice(6);
                 const colorDef =
@@ -261,7 +249,6 @@ export function TextElement({
                 );
               }
 
-              // Normal Links
               return (
                 <a
                   href={href}
@@ -282,10 +269,9 @@ export function TextElement({
     );
   }
 
-  // Edit Mode
   return (
     <div className="w-full group relative">
-      <div className="absolute -top-12 left-0 z-50 flex items-center gap-1 bg-zinc-900 border border-zinc-800 p-1 rounded-lg shadow-xl opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity duration-200">
+      <div className="absolute -top-12 left-0 z-50 flex items-center gap-1 bg-zinc-900 border border-zinc-800 p-1 rounded-lg shadow-xl opacity-0 group-focus-within:opacity-100 transition-opacity duration-200 pointer-events-none group-focus-within:pointer-events-auto">
         <ToggleGroup
           type="single"
           value={align}
@@ -429,7 +415,7 @@ export function TextElement({
                 className="p-2 hover:bg-zinc-800 rounded-md text-zinc-400 hover:text-zinc-200 transition-colors flex items-center gap-1"
                 title="Cor do Texto"
               >
-                <div className="w-4 h-4 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500" />
+                <div className="w-4 h-4 rounded-full bg-linear-to-tr from-indigo-500 to-purple-500" />
               </button>
             </PopoverTrigger>
             <PopoverContent
@@ -464,8 +450,8 @@ export function TextElement({
           textareaId={`editor-${element.id}`}
           className={cn(
             "min-h-[1.5em] font-sans",
-            // We rely on the style prop for base color to ensure it cascades correctly
             align === "center" && "text-center",
+
             align === "right" && "text-right",
             align === "justify" && "text-justify",
           )}
@@ -474,7 +460,7 @@ export function TextElement({
             fontSize: "inherit",
             lineHeight: "inherit",
             minHeight: "1.5em",
-            color: "#f4f4f5", // zinc-100 base color
+            color: "#f4f4f5",
           }}
           textareaClassName="focus:outline-none bg-transparent placeholder:text-zinc-600 caret-white"
           placeholder="Digite seu texto aqui..."

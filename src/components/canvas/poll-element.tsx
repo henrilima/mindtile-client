@@ -116,7 +116,7 @@ export function PollElement({
                 key={option.id}
                 onClick={() => setSelectedOption(option.id)}
                 className={cn(
-                  "w-full p-4 rounded-lg flex items-center justify-between transition-all duration-200 group",
+                  "w-full p-4 rounded-lg flex items-center justify-between transition-all duration-200 group cursor-pointer",
                   "bg-zinc-800/50 border border-zinc-700/50 text-zinc-400 hover:bg-zinc-800 hover:border-zinc-600 hover:text-zinc-200",
                 )}
               >
